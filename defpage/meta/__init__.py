@@ -10,7 +10,7 @@ def main(global_config, **settings):
     config = Configurator()
     config.setup_registry(settings=settings)
 
-    config.add_route("sessions", "/users/{user_id}")
+    config.add_route("users", "/users/{user_id}")
     config.add_route("collections", "/collections/{collection_id}")
     config.add_route("docs", "/docs/{document_id}")
 
