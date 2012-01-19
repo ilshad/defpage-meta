@@ -1,4 +1,3 @@
-from datetime import datetime
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import synonym
@@ -15,27 +14,23 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
 Base = declarative_base()
 
-class PendingRegistration(Base):
+class Collection(Base):
 
-    __tablename__ = "pending_registrations"
+    __tablename__ = "collections"
 
-    code = Column(String, primary_key=True)
-    email = Column(Unicode)
-    password = Column(Unicode(), nullable=False)
-    created = Column(DateTime)
+    collection_id = Coluemn(Integer, primary_key=True, autoincrement=False)
 
-    def __init__(self, email, password):
-        self.code = self._create_code()
-        self.email = email
-        self.password = make_hash(password)
-        self.created = datetime.utcnow()
+    title = Column(Unicode)
 
-    def _create_code(self):
-        while 1:
-            code = random_string(20)
-            exists = DBSession().query(PendingRegistration).filter(PendingRegistration.code==code).first()
-            if not exists:
-                return code
+    imp = Column(String)
+    exp = Column(String)
+
+    def __init__(self, title):
+        self.title = title
+        self.collection_id = self._create_id()
+
+    def _create_id(self):
+        return 1 + (DBSession().query(func.max(Collection.collection_id)).scalar() or 0)
 
 def initialize_sql(engine):
     DBSession.configure(bind=engine)
