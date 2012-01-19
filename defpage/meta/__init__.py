@@ -1,7 +1,7 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
-from defpage.auth.sql import initialize_sql
-from defpage.auth.config import system_params
+from defpage.meta.sql import initialize_sql
+from defpage.meta.config import system_params
 
 def main(global_config, **settings):
     system_params.update(settings)
