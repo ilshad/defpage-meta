@@ -1,8 +1,10 @@
+import json
 from datetime import datetime
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import synonym
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import func
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
@@ -16,14 +18,25 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
 Base = declarative_base()
 
+def serialized(k):
+    def _get(inst):
+        return json.loads(getattr(inst, k))
+    def _set(inst, v):
+        setattr(inst, k, json.dumps(v))
+    return property(_get, _set)
+
 class Collection(Base):
 
     __tablename__ = "collections"
 
     collection_id = Column(Integer, primary_key=True, autoincrement=False)
     title = Column(Unicode)
-    imp = Column(String)
-    exp = Column(String)
+
+    _imports = Column(Unicode)
+    _exports = Column(Unicode)
+
+    imports = synonym("_imports", descriptor=serialized("_imports"))
+    exports = synonym("_exports", descriptor=serialized("_exports"))
 
     def __init__(self, title):
         self.title = title
