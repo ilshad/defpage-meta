@@ -10,10 +10,12 @@ def main(global_config, **settings):
     config = Configurator()
     config.setup_registry(settings=settings)
 
-    config.add_route("users", "/users/{user_id}")
-    config.add_route("collections", "/collections/{collection_id}")
-    config.add_route("docs", "/docs/{document_id}")
+    config.add_route("collections", "/collections/")
+    config.add_route("collection", "/collections/{collection_id}")
 
-    config.add_view("defpage.meta.views.get_user", route_name="users", renderer="json", request_method="GET")
+    config.add_route("documents", "/documents/")
+    config.add_route("document", "/documents/{document_id}")
+
+    config.add_view("defpage.meta.views.search_collections", route_name="collections", renderer="json", request_method="GET")
 
     return config.make_wsgi_app()

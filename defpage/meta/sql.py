@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import synonym
@@ -7,6 +8,7 @@ from sqlalchemy import Integer
 from sqlalchemy import Unicode
 from sqlalchemy import String
 from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
 from zope.sqlalchemy import ZopeTransactionExtension
 from defpage.meta.util import random_string
 
@@ -19,9 +21,7 @@ class Collection(Base):
     __tablename__ = "collections"
 
     collection_id = Column(Integer, primary_key=True, autoincrement=False)
-
     title = Column(Unicode)
-
     imp = Column(String)
     exp = Column(String)
 
@@ -31,6 +31,27 @@ class Collection(Base):
 
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Collection.collection_id)).scalar() or 0)
+
+class Document(Base):
+
+    __tablename__ = "documents"
+
+    document_id = Column(Integer, primary_key=True, autoincrement=False)
+    collection_id = Column(ForeignKey("collections.collection_id"))
+    title = Column(Unicode)
+    modified = Column(DateTime)
+    control = Column(Unicode)
+
+    def __init__(self, title):
+        self.title = title
+        self.document_id = self._create_id()
+        self.update()
+
+    def update(self):
+        self.modified = datetime.utcnow()
+
+    def _create_id(self):
+        return 1 + (DBSession().query(func.max(Document.document_id)).scalar() or 0)
 
 def initialize_sql(engine):
     DBSession.configure(bind=engine)
