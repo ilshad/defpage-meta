@@ -8,7 +8,6 @@ from sqlalchemy import func
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
-from sqlalchemy import String
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -65,6 +64,40 @@ class Document(Base):
 
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Document.document_id)).scalar() or 0)
+
+class CollectionACL(Base):
+
+    __tablename__ = "collection_acl"
+
+    acl_id = Column(Integer, primary_key=True, autoincrement=True)
+    collection_id = Column(ForeignKey("collections.collection_id"))
+    user_id = Column(Integer)
+
+    _permissions = Column(Unicode)
+
+    permissions = synonym("_permissions", descriptor=serialized("_permisisons"))
+
+    def __init__(self, collection_id, user_id, permissions):
+        self.collection_id = collection_id
+        self.user_id = user_id
+        self.permissions = permissions
+
+class DocumentACL(Base):
+
+    __tablename__ = "document_acl"
+
+    acl_id = Column(Integer, primary_key=True, autoincrement=True)
+    document_id = Column(ForeignKey("documents.document_id"))
+    user_id = Column(Integer)
+
+    _permissions = Column(Unicode)
+
+    permissions = synonym("_permissions", descriptor=serialized("_permisisons"))
+
+    def __init__(self, collection_id, user_id, permissions):
+        self.collection_id = collection_id
+        self.user_id = user_id
+        self.permissions = permissions
 
 def initialize_sql(engine):
     DBSession.configure(bind=engine)
