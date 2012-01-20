@@ -52,7 +52,7 @@ def edit_collection(req):
     cid = int_required(req.matchdict["collection_id"])
     params = req.json_body
     title = params.get("title")
-    _acl = params.get("acl")
+    acl = params.get("acl")
     imports = params.get("imports")
     exports = params.get("exports")
     dbs = DBSession()
@@ -61,17 +61,17 @@ def edit_collection(req):
         raise HTTPNotFound
     if title:
         c.title = title
-    if _acl:
-        acl = dict_required(_acl)
-        for user_id, permissions in acl.items():
-            q = and_(CollectionACL.collection_id==cid, CollectionACL.user_id==user_id)
+    if acl:
+        acl = dict_required(acl)
+        for userid, permissions in acl.items():
+            q = and_(CollectionACL.collection_id==cid, CollectionACL.user_id==userid)
             old = dbs.query(CollectionACL).filter(q).first()
             if old:
                 if old.permissions:
                     if set(old.permissions) == set(permissions):
                         continue
                 dbs.delete(old)
-            dbs.add(CollectionACL(cid, user_id, permissions))
+            dbs.add(CollectionACL(cid, userid, permissions))
     if imports:
         c.imports = int_list_required(imports)
     if exports:
@@ -140,3 +140,45 @@ def add_document(req):
         dbs.add(ob)
     req.response.status = "201 Created"
     return {"id":docid}
+
+def edit_document(req):
+    modified = False
+    docid = int_required(req.matchdict["document_id"])
+    params = req.json_body
+    title = params.get("title")
+    control = params.get("control")
+    cid = params.get("collection")
+    if cid:
+        cid = int_required(cid)
+    acl = params.get("acl")
+    if acl:
+        acl = dict_required(acl)
+    dbs = DBSession()
+    doc = dbs.query(Document).filter(Document.document_id==docid).first()
+    if not doc:
+        raise HTTPNotFound
+    if title:
+        doc.title = title
+        modified = True
+    if control:
+        doc.control = control
+        modified = True
+    if cid:
+        if not bool(dbs.query(Collection.collection_id).filter(Collection.collection_id==cid).count()):
+            raise HTTPBadRequest
+        doc.collection_id = cid
+        modified = True
+    if acl:
+        for userid, permissions in acl.items():
+            q = and_(DocumentACL.document_id==docid, DocumentACL.user_id==userid)
+            old = dbs.query(DocumentACL).filter(q).first()
+            if old:
+                if old.permissions:
+                    if set(old.permissions) == set(permissions):
+                        continue
+                dbs.delete(old)
+            dbs.add(DocumentACL(cid, userid, permissions))
+            modified = True
+    if modified:
+        doc.update()
+    return Response(status="204 No Content")
