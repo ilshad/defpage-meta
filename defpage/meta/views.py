@@ -39,7 +39,7 @@ def edit_collection(req):
     title = params.get("title")
     _acl = params.get("acl")
     imports = params.get("imports")
-    exporst = params.get("exporst")
+    exports = params.get("exports")
     dbs = DBSession()
     c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
     if title:
@@ -50,11 +50,11 @@ def edit_collection(req):
             q = and_(CollectionACL.collection_id==cid, CollectionACL.user_id==user_id)
             old = dbs.query(CollectionACL).filter(q).first()
             if old:
-                if set(old.permissions) == set(permissions):
-                    continue
+                if old.permissions:
+                    if set(old.permissions) == set(permissions):
+                        continue
                 dbs.delete(old)
-            new = CollectionACL(collection_id, user_id, permissions)
-            dbs.add(ob)
+            dbs.add(CollectionACL(cid, user_id, permissions))
     if imports:
         c.imports = int_list_required(imports)
     if exports:

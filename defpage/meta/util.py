@@ -33,8 +33,4 @@ def dict_required(v):
 def int_list_required(v):
     if type(v) is not list:
         raise HTTPBadRequest
-    r = []
-    for i in v:
-        try:
-            r.append(int_required(i))
-    return r
+    return [int_required(i) for i in v]
