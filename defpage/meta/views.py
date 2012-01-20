@@ -12,6 +12,7 @@ from defpage.meta.sql import DocumentACL
 from defpage.meta.util import int_required
 from defpage.meta.util import dict_required
 from defpage.meta.util import int_list_required
+from defpage.meta.util import datetime_format
 
 meta_logger = logging.getLogger("defpage_meta")
 
@@ -30,7 +31,7 @@ def get_collection(req):
     acl_query = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
     acl = dict((i.user_id, i.permissions) for i in acl_query)
     docs_query = dbs.query(Document).filter(Document.collection_id==cid)
-    docs = [{"id":i.document_id, "title":i.title, "modified":i.modified, "control":i.control} for i in docs_query]
+    docs = [{"id":i.document_id, "title":i.title, "modified":datetime_format(i.modified), "control":i.control} for i in docs_query]
     return {"title":c.title, "imports":c.imports, "exports":c.exports, "acl":acl, "documents":docs}
 
 def add_collection(req):
