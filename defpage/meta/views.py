@@ -26,7 +26,7 @@ def get_collection(req):
     c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
     if not c:
         raise HTTPNotFound
-    alc_query = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
+    acl_query = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
     acl = dict((i.user_id, i.permissions) for i in acl_query)
     docs_query = dbs.query(Document).filter(Document.collection_id==cid)
     docs = [{"id":i.document_id, "title":i.title, "modified":i.modified, "control":i.control} for i in docs_query]
