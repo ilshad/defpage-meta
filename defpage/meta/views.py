@@ -16,24 +16,6 @@ from defpage.meta.util import datetime_format
 
 meta_logger = logging.getLogger("defpage_meta")
 
-def search_collections(req):
-    user_id = int_required(req.GET.get("user_id"))
-    dbs = DBSession()
-    acls = dbs.query(CollectionACL).filter(CollectionACL.user_id==int(user_id))
-    return [{"id":x.collection_id, "title":x.collection.title, "permissions":x.permissions} for x in acls]
-
-def get_collection(req):
-    cid = int_required(req.matchdict["collection_id"])
-    dbs = DBSession()
-    c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
-    if not c:
-        raise HTTPNotFound
-    acl_query = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
-    acl = dict((i.user_id, i.permissions) for i in acl_query)
-    docs_query = dbs.query(Document).filter(Document.collection_id==cid)
-    docs = [{"id":i.document_id, "title":i.title, "modified":datetime_format(i.modified), "control":i.control} for i in docs_query]
-    return {"title":c.title, "imports":c.imports, "exports":c.exports, "acl":acl, "documents":docs}
-
 def add_collection(req):
     params = req.json_body
     title = params["title"]
@@ -96,6 +78,24 @@ def del_collection(req):
             dbs.delete(doc)
     dbs.delete(c)
     return Response(status="204 No Content")
+
+def get_collection(req):
+    cid = int_required(req.matchdict["collection_id"])
+    dbs = DBSession()
+    c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
+    if not c:
+        raise HTTPNotFound
+    acl_query = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
+    acl = dict((i.user_id, i.permissions) for i in acl_query)
+    docs_query = dbs.query(Document).filter(Document.collection_id==cid)
+    docs = [{"id":i.document_id, "title":i.title, "modified":datetime_format(i.modified), "control":i.control} for i in docs_query]
+    return {"title":c.title, "imports":c.imports, "exports":c.exports, "acl":acl, "documents":docs}
+
+def search_collections(req):
+    user_id = int_required(req.GET.get("user_id"))
+    dbs = DBSession()
+    acls = dbs.query(CollectionACL).filter(CollectionACL.user_id==int(user_id))
+    return [{"id":x.collection_id, "title":x.collection.title, "permissions":x.permissions} for x in acls]
 
 def add_document(req):
     params = req.json_body
@@ -182,3 +182,13 @@ def edit_document(req):
     if modified:
         doc.update()
     return Response(status="204 No Content")
+
+def get_document(req):
+    docid = int_required(req.matchdict["document_id"])
+    dbs = DBSession()
+    doc = dbs.query(Document).filter(Document.document_id==docid).first()
+    if not doc:
+        raise HTTPNotFound
+    acl_query = dbs.query(DocumentACL).filter(DocumentACL.document_id==docid)
+    acl = dict((i.user_id, i.permissions) for i in acl_query)
+    return {"title":doc.title, "modified":datetime_format(doc.modified), "control":doc.control, "collection":doc.collection_id, "acl":acl}
