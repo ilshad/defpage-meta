@@ -29,3 +29,12 @@ def dict_required(v):
     if type(v) is dict:
         return v
     raise HTTPBadRequest
+
+def int_list_required(v):
+    if type(v) is not list:
+        raise HTTPBadRequest
+    r = []
+    for i in v:
+        try:
+            r.append(int_required(i))
+    return r
