@@ -1,6 +1,7 @@
 import logging
 from sqlalchemy import and_
 from pyramid.response import Response
+from pyramid.httpexceptions import HTTPNotFound
 from defpage.meta.sql import DBSession
 from defpage.meta.config import system_params
 from defpage.meta.sql import Collection
@@ -18,6 +19,18 @@ def search_collections(req):
     dbs = DBSession()
     acls = dbs.query(CollectionACL).filter(CollectionACL.user_id==int(user_id))
     return [{"id":x.collection_id, "title":x.collection.title, "permissions":x.permissions} for x in acls]
+
+def get_collection(req):
+    cid = int_required(req.matchdict["collection_id"])
+    dbs = DBSession()
+    c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
+    if not c:
+        raise HTTPNotFound
+    alc_query = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
+    acl = dict((i.user_id, i.permissions) for i in acl_query)
+    docs_query = dbs.query(Document).filter(Document.collection_id==cid)
+    docs = [{"id":i.document_id, "title":i.title, "modified":i.modified, "control":i.control} for i in docs_query]
+    return {"title":c.title, "imports":c.imports, "exports":c.exports, "acl":acl, "documents":docs}
 
 def add_collection(req):
     params = req.json_body

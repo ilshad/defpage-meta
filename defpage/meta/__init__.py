@@ -17,6 +17,7 @@ def main(global_config, **settings):
     config.add_route("document", "/documents/{document_id}")
 
     config.add_view("defpage.meta.views.search_collections", route_name="collections", renderer="json", request_method="GET")
+    config.add_view("defpage.meta.views.get_collection", route_name="collection", renderer="json", request_method="GET")
     config.add_view("defpage.meta.views.add_collection", route_name="collections", renderer="json", request_method="POST")
     config.add_view("defpage.meta.views.edit_collection", route_name="collection", request_method="PUT")
 
