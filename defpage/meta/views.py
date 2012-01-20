@@ -76,7 +76,7 @@ def edit_collection(req):
         c.exports = int_list_required(exports)
     return Response(status="204 No Content")
 
-REMOVAL_DOCS_IMPLEMENTATIONS = ("gd")
+ALLOW_DELETE = ("gd")
 
 def del_collection(req):
     cid = int_required(req.matchdict["collection_id"])
@@ -90,7 +90,7 @@ def del_collection(req):
     docs = dbs.query(Document).filter(Document.collection_id==cid)
     for doc in docs:
         control = doc.control.split(":", 1)
-        if control[0] in REMOVAL_DOCS_IMPLEMENTATIONS:
+        if control[0] in ALLOW_DELETE:
             dbs.delete(doc)
     dbs.delete(c)
     return Response(status="204 No Content")
