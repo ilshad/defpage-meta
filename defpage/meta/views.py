@@ -183,6 +183,18 @@ def edit_document(req):
         doc.update()
     return Response(status="204 No Content")
 
+def del_document(req):
+    docid = int_required(req.matchdict["document_id"])
+    dbs = DBSession()
+    doc = dbs.query(Document).filter(Document.document_id==docid).first()
+    if not doc:
+        raise HTTPNotFound
+    acls = dbs.query(DocumentACL).filter(DocumentACL.document_id==docid)
+    for i in acls:
+        dbs.delete(i)
+    dbs.delete(doc)
+    return Response(status="204 No Content")
+
 def get_document(req):
     docid = int_required(req.matchdict["document_id"])
     dbs = DBSession()
