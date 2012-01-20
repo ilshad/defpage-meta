@@ -17,5 +17,6 @@ def main(global_config, **settings):
     config.add_route("document", "/documents/{document_id}")
 
     config.add_view("defpage.meta.views.search_collections", route_name="collections", renderer="json", request_method="GET")
+    config.add_view("defpage.meta.views.add_collection", route_name="collections", renderer="json", request_method="POST")
 
     return config.make_wsgi_app()

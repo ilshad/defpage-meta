@@ -15,3 +15,17 @@ def search_collections(req):
     dbs = DBSession()
     acls = dbs.query(CollectionACL).filter(CollectionACL.user_id==int(user_id))
     return [{"id":x.collection_id, "title":x.collection.title, "permissions":x.permissions} for x in acls]
+
+def add_collection(req):
+    params = req.json_body
+    title = params["title"]
+    acl = params["acl"]
+    assert type(acl) is dict
+    dbs = DBSession()
+    collection = Collection(title)
+    collection_id = collection.collection_id
+    dbs.add(collection)
+    for user_id, permissions in acl.items():
+        ob = CollectionACL(collection_id, user_id, permissions)
+        dbs.add(ob)
+    return {"id":collection_id}
