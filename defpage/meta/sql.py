@@ -1,8 +1,8 @@
-import json
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm import synonym
 from sqlalchemy import func
 from sqlalchemy import Column
@@ -12,17 +12,11 @@ from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from zope.sqlalchemy import ZopeTransactionExtension
 from defpage.meta.util import random_string
+from defpage.meta.util import serialized
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
 Base = declarative_base()
-
-def serialized(k):
-    def _get(inst):
-        return json.loads(getattr(inst, k))
-    def _set(inst, v):
-        setattr(inst, k, json.dumps(v))
-    return property(_get, _set)
 
 class Collection(Base):
 
@@ -77,6 +71,9 @@ class CollectionACL(Base):
 
     permissions = synonym("_permissions", descriptor=serialized("_permisisons"))
 
+    collection = relationship("Collection")
+    user = relationship("User")
+
     def __init__(self, collection_id, user_id, permissions):
         self.collection_id = collection_id
         self.user_id = user_id
@@ -93,6 +90,9 @@ class DocumentACL(Base):
     _permissions = Column(Unicode)
 
     permissions = synonym("_permissions", descriptor=serialized("_permisisons"))
+
+    document = relationship("Document")
+    user = relationship("User")
 
     def __init__(self, collection_id, user_id, permissions):
         self.collection_id = collection_id
