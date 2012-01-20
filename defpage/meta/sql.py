@@ -69,7 +69,7 @@ class CollectionACL(Base):
 
     _permissions = Column(Unicode)
 
-    permissions = synonym("_permissions", descriptor=serialized("_permisisons"))
+    permissions = synonym("_permissions", descriptor=serialized("_permissions"))
     collection = relationship("Collection")
 
     def __init__(self, collection_id, user_id, permissions):
@@ -87,7 +87,7 @@ class DocumentACL(Base):
 
     _permissions = Column(Unicode)
 
-    permissions = synonym("_permissions", descriptor=serialized("_permisisons"))
+    permissions = synonym("_permissions", descriptor=serialized("_permissions"))
     document = relationship("Document")
 
     def __init__(self, collection_id, user_id, permissions):

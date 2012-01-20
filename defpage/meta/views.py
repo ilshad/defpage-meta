@@ -7,6 +7,7 @@ from defpage.meta.sql import Document
 from defpage.meta.sql import CollectionACL
 from defpage.meta.sql import DocumentACL
 from defpage.meta.util import int_required
+from defpage.meta.util import dict_required
 
 meta_logger = logging.getLogger("defpage_meta")
 
@@ -19,8 +20,7 @@ def search_collections(req):
 def add_collection(req):
     params = req.json_body
     title = params["title"]
-    acl = params["acl"]
-    assert type(acl) is dict
+    acl = dict_required(params["acl"])
     dbs = DBSession()
     collection = Collection(title)
     collection_id = collection.collection_id
@@ -28,4 +28,5 @@ def add_collection(req):
     for user_id, permissions in acl.items():
         ob = CollectionACL(collection_id, user_id, permissions)
         dbs.add(ob)
+    req.response.status = "201 Created"
     return {"id":collection_id}

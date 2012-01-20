@@ -1,7 +1,7 @@
 import json
 import random
 import string
-import pyramid.httpexceptions
+from pyramid.httpexceptions import HTTPBadRequest
 
 def random_string(length):
     chars = []
@@ -21,6 +21,11 @@ def int_required(v):
     try:
         return int(v)
     except TypeError:
-        raise pyramid.httpexceptions.HTTPBadRequest
+        raise HTTPBadRequest
     except ValueError:
-        raise pyramid.httpexceptions.HTTPBadRequest
+        raise HTTPBadRequest
+
+def dict_required(v):
+    if type(v) is dict:
+        return v
+    raise HTTPBadRequest
