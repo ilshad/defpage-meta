@@ -22,4 +22,6 @@ def main(global_config, **settings):
     config.add_view("defpage.meta.views.edit_collection", route_name="collection", request_method="PUT")
     config.add_view("defpage.meta.views.del_collection", route_name="collection", request_method="DELETE")
 
+    config.add_view("defpage.meta.views.add_document", route_name="documents", renderer="json", request_method="POST")
+
     return config.make_wsgi_app()

@@ -90,8 +90,8 @@ class DocumentACL(Base):
     permissions = synonym("_permissions", descriptor=serialized("_permissions"))
     document = relationship("Document")
 
-    def __init__(self, collection_id, user_id, permissions):
-        self.collection_id = collection_id
+    def __init__(self, document_id, user_id, permissions):
+        self.document_id = document_id
         self.user_id = user_id
         self.permissions = permissions
 

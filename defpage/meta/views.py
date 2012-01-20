@@ -2,6 +2,7 @@ import logging
 from sqlalchemy import and_
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest
 from defpage.meta.sql import DBSession
 from defpage.meta.config import system_params
 from defpage.meta.sql import Collection
@@ -38,13 +39,13 @@ def add_collection(req):
     acl = dict_required(params["acl"])
     dbs = DBSession()
     collection = Collection(title)
-    collection_id = collection.collection_id
+    cid = collection.collection_id
     dbs.add(collection)
-    for user_id, permissions in acl.items():
-        ob = CollectionACL(collection_id, user_id, permissions)
+    for userid, permissions in acl.items():
+        ob = CollectionACL(cid, userid, permissions)
         dbs.add(ob)
     req.response.status = "201 Created"
-    return {"id":collection_id}
+    return {"id":cid}
 
 def edit_collection(req):
     cid = int_required(req.matchdict["collection_id"])
@@ -94,3 +95,47 @@ def del_collection(req):
             dbs.delete(doc)
     dbs.delete(c)
     return Response(status="204 No Content")
+
+def add_document(req):
+    params = req.json_body
+
+    # check title
+    try:
+        title = params["title"]
+    except KeyError:
+        raise HTTPBadRequest
+
+    # check collecton
+    cid = params.get("collection")
+    if cid is not None:
+        try:
+            cid = int(cid)
+        except ValueError:
+            raise HTTPBadRequest
+
+    # check ACL
+    try:
+        acl = dict_required(params["acl"])
+    except KeyError:
+        raise HTTPBadRequest
+    success = False
+    for k,v in acl.items():
+        if type(v) is not list:
+            raise HTTPBadRequest
+        if "owner" in v:
+            success = True
+            break
+    if not success:
+        raise HTTPBadRequest
+
+    dbs = DBSession()
+    doc = Document(title)
+    docid = doc.document_id
+    if cid:
+        doc.collection_id = cid
+    dbs.add(doc)
+    for userid, permissions in acl.items():
+        ob = DocumentACL(docid, userid, permissions)
+        dbs.add(ob)
+    req.response.status = "201 Created"
+    return {"id":docid}
