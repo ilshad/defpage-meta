@@ -55,6 +55,8 @@ def edit_collection(req):
     exports = params.get("exports")
     dbs = DBSession()
     c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
+    if not c:
+        raise HTTPNotFound
     if title:
         c.title = title
     if _acl:
@@ -72,4 +74,23 @@ def edit_collection(req):
         c.imports = int_list_required(imports)
     if exports:
         c.exports = int_list_required(exports)
+    return Response(status="204 No Content")
+
+REMOVAL_DOCS_IMPLEMENTATIONS = ("gd")
+
+def del_collection(req):
+    cid = int_required(req.matchdict["collection_id"])
+    dbs = DBSession()
+    c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
+    if not c:
+        raise HTTPNotFound
+    acls = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
+    for i in acls:
+        dbs.delete(i)
+    docs = dbs.query(Document).filter(Document.collection_id==cid)
+    for doc in docs:
+        control = doc.control.split(":", 1)
+        if control[0] in REMOVAL_DOCS_IMPLEMENTATIONS:
+            dbs.delete(doc)
+    dbs.delete(c)
     return Response(status="204 No Content")
