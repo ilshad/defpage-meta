@@ -22,6 +22,13 @@ Create virtual environment and deploy site within it::
   $ git clone git@spacta.com:defpage_meta.git
   $ cd defpage_meta
   $ virtualenv --no-site-packages --distribute .
+
+Install shared python library for defpage (take it here: git@spacta.com:defpage/pylib.git)::
+
+  $ bin/pip install -e [ path_to_pylib ]
+
+Install site::
+
   $ bin/pip install -e .
 
 Run tests::
