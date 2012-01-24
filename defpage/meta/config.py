@@ -1,8 +1,3 @@
-class SystemParams:
-
-    def update(self, settings):
-        for k,v in settings.items():
-            if k.startswith("system."):
-                setattr(self, k[7:], v)
+from defpage.lib.config import SystemParams
 
 system_params = SystemParams()

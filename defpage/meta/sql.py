@@ -11,8 +11,8 @@ from sqlalchemy import Unicode
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from zope.sqlalchemy import ZopeTransactionExtension
-from defpage.meta.util import random_string
-from defpage.meta.util import serialized
+from defpage.lib.util import random_string
+from defpage.lib.util import serialized
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
