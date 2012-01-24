@@ -15,6 +15,7 @@ requires = [
     'WebError',
     'psycopg2',
     'httplib2',
+    'defpage.lib',
     ]
 
 if sys.version_info[:3] < (2,5,0):
