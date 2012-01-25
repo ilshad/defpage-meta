@@ -17,10 +17,10 @@ def main(global_config, **settings):
     config.setup_registry(settings=settings, authentication_policy=authentication_policy)
 
     config.add_route("cols", "/collections/")
-    config.add_route("col", "/collections/{collection_id}", factory=get_collection, custom_predicates=(is_int,))
+    config.add_route("col", "/collections/{name}", factory=get_collection, custom_predicates=(is_int,))
 
     config.add_route("docs", "/documents/")
-    config.add_route("doc", "/documents/{document_id}", factory=get_document, custom_predicates=(is_int,))
+    config.add_route("doc", "/documents/{name}", factory=get_document, custom_predicates=(is_int,))
 
     config.add_view("defpage.meta.views.add_collection", route_name="cols", renderer="json", request_method="POST")
     config.add_view("defpage.meta.views.edit_collection", route_name="col", request_method="PUT", permission="manage")

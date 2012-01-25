@@ -8,9 +8,9 @@ def security_checker(credentials, request):
     roles = []
     c = ICollection(request.context, None)
     if c:
-        r = DBSession().query(CollectionUserRole.role).filter(
+        cur = DBSession().query(CollectionUserRole).filter(
             and_(CollectionUserRole.collection_id==c.collection_id, CollectionUserRole.user_id==userid)
             ).first()
-        if r:
-            roles.append(r)
+        if cur:
+            roles.append(cur.role)
     return roles

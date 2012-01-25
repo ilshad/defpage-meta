@@ -31,27 +31,26 @@ def add_collection(req):
 def edit_collection(req):
     params = req.json_body
     title = params.get("title")
-    acl = params.get("acl")
-    imports = params.get("imports")
-    exports = params.get("exports")
+    roles = params.get("roles")
+    sources = params.get("sources")
+    transmissions = params.get("transmissions")
     cid = req.context.collection_id
     if title:
         req.context.title = title
-    if acl:
-        acl = dict_required(acl)
-        for userid, permissions in acl.items():
-            q = and_(CollectionACL.collection_id==cid, CollectionACL.user_id==userid)
-            old = dbs.query(CollectionACL).filter(q).first()
+    if roles:
+        roles = dict_required(roles)
+        for userid, role in roles.items():
+            q = and_(CollectionUserRole.collection_id==cid, CollectionUserRole.user_id==userid)
+            old = dbs.query(CollectionUserRole).filter(q).first()
             if old:
-                if old.permissions:
-                    if set(old.permissions) == set(permissions):
-                        continue
+                if old.role == role:
+                    continue
                 dbs.delete(old)
-            dbs.add(CollectionACL(cid, userid, permissions))
-    if imports:
-        req.context.imports = int_list_required(imports)
-    if exports:
-        req.context.exports = int_list_required(exports)
+            dbs.add(CollectionUserRole(cid, userid, role))
+    if sources:
+        req.context.sources = int_list_required(sources)
+    if transmissions:
+        req.context.transmissions = int_list_required(exports)
     return Response(status="204 No Content")
 
 ALLOW_DELETE = ("gd")
@@ -59,14 +58,14 @@ ALLOW_DELETE = ("gd")
 def del_collection(req):
     dbs = DBSession()
     cid = req.context.collection_id
-    acls = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
-    for i in acls:
-        dbs.delete(i)
+    roles = dbs.query(CollectionUserRole).filter(CollectionUserRole.collection_id==cid)
+    for r in roles:
+        dbs.delete(r)
     docs = dbs.query(Document).filter(Document.collection_id==cid)
-    for doc in docs:
-        control = doc.control.split(":", 1)
+    for d in docs:
+        control = d.source.split(":", 1)
         if control[0] in ALLOW_DELETE:
-            dbs.delete(doc)
+            dbs.delete(d)
     dbs.delete(req.context)
     return Response(status="204 No Content")
 
@@ -74,11 +73,9 @@ def get_collection(req):
     dbs = DBSession()
     c = req.context
     cid = c.collection_id
-    acl_query = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
-    acl = dict((i.user_id, i.permissions) for i in acl_query)
-    docs_query = dbs.query(Document).filter(Document.collection_id==cid)
-    docs = [{"id":i.document_id, "title":i.title, "modified":datetime_format(i.modified), "control":i.control} for i in docs_query]
-    return {"title":c.title, "imports":c.imports, "exports":c.exports, "acl":acl, "documents":docs}
+    roles = dict((i.user_id, i.role) for i in dbs.query(CollectionUserRole).filter(CollectionUserRole.collection_id==cid))
+    docs = [{"id":i.document_id, "title":i.title, "modified":datetime_format(i.modified), "source":i.source} for i in dbs.query(Document).filter(Document.collection_id==cid)]
+    return {"title":c.title, "sources":c.sources, "transmissions":c.transmissions, "roles":roles, "documents":docs}
 
 def search_collections(req):
     user_id = int_required(req.GET.get("user_id"))
