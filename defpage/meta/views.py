@@ -128,11 +128,7 @@ def edit_document(req):
     return Response(status="204 No Content")
 
 def del_document(req):
-    dbs = DBSession()
-    acls = dbs.query(DocumentACL).filter(DocumentACL.document_id==req.context.document_id)
-    for i in acls:
-        dbs.delete(i)
-    dbs.delete(req.context)
+    DBSession().delete(req.context)
     return Response(status="204 No Content")
 
 def get_document(req):
