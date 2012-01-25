@@ -10,6 +10,9 @@ from sqlalchemy import Integer
 from sqlalchemy import Unicode
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
+from pyramid.security import Everyone
+from pyramid.security import Authenticated
+from pyramid.security import Allow
 from zope.sqlalchemy import ZopeTransactionExtension
 from defpage.lib.util import random_string
 from defpage.lib.util import serialized
@@ -21,6 +24,13 @@ Base = declarative_base()
 class Collection(Base):
 
     __tablename__ = "collections"
+
+    __name__ = None
+    __parent__ = None
+
+    __acl__ = [(Allow, "owner", "view"), (Allow, "owner", "manage"), (Allow, "owner", "delete"),
+               (Allow, "manager", "view"), (Allow, "manager", "manage"),
+               (Allow, "guest", "view")]
 
     collection_id = Column(Integer, primary_key=True, autoincrement=False)
     title = Column(Unicode)
@@ -41,6 +51,11 @@ class Collection(Base):
 class Document(Base):
 
     __tablename__ = "documents"
+
+    __name__ = None
+    __parent__ = None
+
+    __acl__ = [(Allow, "owner", "manage")]
 
     document_id = Column(Integer, primary_key=True, autoincrement=False)
     collection_id = Column(ForeignKey("collections.collection_id"))

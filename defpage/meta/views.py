@@ -3,6 +3,7 @@ from sqlalchemy import and_
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.security import authenticated_userid
 from defpage.meta.sql import DBSession
 from defpage.meta.config import system_params
 from defpage.meta.sql import Collection
@@ -31,18 +32,14 @@ def add_collection(req):
     return {"id":cid}
 
 def edit_collection(req):
-    cid = int_required(req.matchdict["collection_id"])
     params = req.json_body
     title = params.get("title")
     acl = params.get("acl")
     imports = params.get("imports")
     exports = params.get("exports")
-    dbs = DBSession()
-    c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
-    if not c:
-        raise HTTPNotFound
+    cid = req.context.collection_id
     if title:
-        c.title = title
+        req.context.title = title
     if acl:
         acl = dict_required(acl)
         for userid, permissions in acl.items():
@@ -55,19 +52,16 @@ def edit_collection(req):
                 dbs.delete(old)
             dbs.add(CollectionACL(cid, userid, permissions))
     if imports:
-        c.imports = int_list_required(imports)
+        req.context.imports = int_list_required(imports)
     if exports:
-        c.exports = int_list_required(exports)
+        req.context.exports = int_list_required(exports)
     return Response(status="204 No Content")
 
 ALLOW_DELETE = ("gd")
 
 def del_collection(req):
-    cid = int_required(req.matchdict["collection_id"])
     dbs = DBSession()
-    c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
-    if not c:
-        raise HTTPNotFound
+    cid = req.context.collection_id
     acls = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
     for i in acls:
         dbs.delete(i)
@@ -76,15 +70,13 @@ def del_collection(req):
         control = doc.control.split(":", 1)
         if control[0] in ALLOW_DELETE:
             dbs.delete(doc)
-    dbs.delete(c)
+    dbs.delete(req.context)
     return Response(status="204 No Content")
 
 def get_collection(req):
-    cid = int_required(req.matchdict["collection_id"])
     dbs = DBSession()
-    c = dbs.query(Collection).filter(Collection.collection_id==cid).first()
-    if not c:
-        raise HTTPNotFound
+    c = req.context
+    cid = c.collection_id
     acl_query = dbs.query(CollectionACL).filter(CollectionACL.collection_id==cid)
     acl = dict((i.user_id, i.permissions) for i in acl_query)
     docs_query = dbs.query(Document).filter(Document.collection_id==cid)
@@ -143,7 +135,6 @@ def add_document(req):
 
 def edit_document(req):
     modified = False
-    docid = int_required(req.matchdict["document_id"])
     params = req.json_body
     title = params.get("title")
     control = params.get("control")
@@ -154,19 +145,16 @@ def edit_document(req):
     if acl:
         acl = dict_required(acl)
     dbs = DBSession()
-    doc = dbs.query(Document).filter(Document.document_id==docid).first()
-    if not doc:
-        raise HTTPNotFound
     if title:
-        doc.title = title
+        req.context.title = title
         modified = True
     if control:
-        doc.control = control
+        req.context.control = control
         modified = True
     if cid:
         if not bool(dbs.query(Collection.collection_id).filter(Collection.collection_id==cid).count()):
             raise HTTPBadRequest
-        doc.collection_id = cid
+        req.context.collection_id = cid
         modified = True
     if acl:
         for userid, permissions in acl.items():
@@ -180,27 +168,19 @@ def edit_document(req):
             dbs.add(DocumentACL(cid, userid, permissions))
             modified = True
     if modified:
-        doc.update()
+        req.context.update()
     return Response(status="204 No Content")
 
 def del_document(req):
-    docid = int_required(req.matchdict["document_id"])
     dbs = DBSession()
-    doc = dbs.query(Document).filter(Document.document_id==docid).first()
-    if not doc:
-        raise HTTPNotFound
-    acls = dbs.query(DocumentACL).filter(DocumentACL.document_id==docid)
+    acls = dbs.query(DocumentACL).filter(DocumentACL.document_id==req.context.document_id)
     for i in acls:
         dbs.delete(i)
-    dbs.delete(doc)
+    dbs.delete(req.context)
     return Response(status="204 No Content")
 
 def get_document(req):
-    docid = int_required(req.matchdict["document_id"])
     dbs = DBSession()
-    doc = dbs.query(Document).filter(Document.document_id==docid).first()
-    if not doc:
-        raise HTTPNotFound
     acl_query = dbs.query(DocumentACL).filter(DocumentACL.document_id==docid)
     acl = dict((i.user_id, i.permissions) for i in acl_query)
     return {"title":doc.title, "modified":datetime_format(doc.modified), "control":doc.control, "collection":doc.collection_id, "acl":acl}
