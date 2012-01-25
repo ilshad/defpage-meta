@@ -155,7 +155,8 @@ def del_document(req):
     return Response(status="204 No Content")
 
 def get_document(req):
-    dbs = DBSession()
-    acl_query = dbs.query(DocumentACL).filter(DocumentACL.document_id==docid)
-    acl = dict((i.user_id, i.permissions) for i in acl_query)
-    return {"title":doc.title, "modified":datetime_format(doc.modified), "control":doc.control, "collection":doc.collection_id, "acl":acl}
+    return {"title":req.context.title,
+            "modified":datetime_format(req.context.modified),
+            "source":req.context.source,
+            "collection_id":req.context.collection_id}
+
