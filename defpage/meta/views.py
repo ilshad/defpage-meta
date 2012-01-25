@@ -8,8 +8,7 @@ from defpage.meta.sql import DBSession
 from defpage.meta.config import system_params
 from defpage.meta.sql import Collection
 from defpage.meta.sql import Document
-from defpage.meta.sql import CollectionACL
-from defpage.meta.sql import DocumentACL
+from defpage.meta.sql import CollectionUserRole
 from defpage.meta.util import int_required
 from defpage.meta.util import dict_required
 from defpage.meta.util import int_list_required
@@ -20,14 +19,12 @@ meta_logger = logging.getLogger("defpage_meta")
 def add_collection(req):
     params = req.json_body
     title = params["title"]
-    acl = dict_required(params["acl"])
+    userid = int_required(params["owner"])
     dbs = DBSession()
-    collection = Collection(title)
-    cid = collection.collection_id
-    dbs.add(collection)
-    for userid, permissions in acl.items():
-        ob = CollectionACL(cid, userid, permissions)
-        dbs.add(ob)
+    c = Collection(title)
+    cid = c.collection_id
+    dbs.add(c)
+    dbs.ad(CollectionUserRole(cid, userid, "owner"))
     req.response.status = "201 Created"
     return {"id":cid}
 

@@ -1,4 +1,6 @@
 from datetime import datetime
+from zope.interface import implementer
+from zope.sqlalchemy import ZopeTransactionExtension
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
@@ -8,12 +10,14 @@ from sqlalchemy import func
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
+from sqlalchemy import String
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from pyramid.security import Everyone
 from pyramid.security import Authenticated
 from pyramid.security import Allow
-from zope.sqlalchemy import ZopeTransactionExtension
+from defpage.meta.interfaces import ICollection
+from defpage.meta.interfaces import IDocument
 from defpage.lib.util import random_string
 from defpage.lib.util import serialized
 
@@ -21,6 +25,7 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
 Base = declarative_base()
 
+@implementer(ICollection)
 class Collection(Base):
 
     __tablename__ = "collections"
@@ -28,18 +33,23 @@ class Collection(Base):
     __name__ = None
     __parent__ = None
 
-    __acl__ = [(Allow, "owner", "view"), (Allow, "owner", "manage"), (Allow, "owner", "delete"),
-               (Allow, "manager", "view"), (Allow, "manager", "manage"),
+    __acl__ = [(Allow, "owner", "view"),
+               (Allow, "owner", "manage"),
+               (Allow, "owner", "delete"),
+
+               (Allow, "manager", "view"),
+               (Allow, "manager", "manage"),
+
                (Allow, "guest", "view")]
 
     collection_id = Column(Integer, primary_key=True, autoincrement=False)
     title = Column(Unicode)
 
-    _imports = Column(Unicode)
-    _exports = Column(Unicode)
+    _sources = Column(Unicode)
+    _transmissions = Column(Unicode)
 
-    imports = synonym("_imports", descriptor=serialized("_imports"))
-    exports = synonym("_exports", descriptor=serialized("_exports"))
+    sources = synonym("_sources", descriptor=serialized("_sources"))
+    transmissions = synonym("_transmissions", descriptor=serialized("_transmissions"))
 
     def __init__(self, title):
         self.title = title
@@ -48,6 +58,7 @@ class Collection(Base):
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Collection.collection_id)).scalar() or 0)
 
+@implementer(IDocument)
 class Document(Base):
 
     __tablename__ = "documents"
@@ -55,13 +66,13 @@ class Document(Base):
     __name__ = None
     __parent__ = None
 
-    __acl__ = [(Allow, "owner", "manage")]
+    __acl__ = []
 
     document_id = Column(Integer, primary_key=True, autoincrement=False)
     collection_id = Column(ForeignKey("collections.collection_id"))
     title = Column(Unicode)
     modified = Column(DateTime)
-    control = Column(Unicode)
+    source = Column(Unicode)
 
     def __init__(self, title):
         self.title = title
@@ -74,41 +85,21 @@ class Document(Base):
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Document.document_id)).scalar() or 0)
 
-class CollectionACL(Base):
+class CollectionUserRole(Base):
 
-    __tablename__ = "collection_acl"
+    __tablename__ = "collection_user_roles"
 
-    acl_id = Column(Integer, primary_key=True, autoincrement=True)
+    role_id = Column(Integer, primary_key=True, autoincrement=True)
     collection_id = Column(ForeignKey("collections.collection_id"))
     user_id = Column(Integer)
+    role = Column(String)
 
-    _permissions = Column(Unicode)
-
-    permissions = synonym("_permissions", descriptor=serialized("_permissions"))
     collection = relationship("Collection")
 
-    def __init__(self, collection_id, user_id, permissions):
+    def __init__(self, collection_id, user_id, role):
         self.collection_id = collection_id
         self.user_id = user_id
-        self.permissions = permissions
-
-class DocumentACL(Base):
-
-    __tablename__ = "document_acl"
-
-    acl_id = Column(Integer, primary_key=True, autoincrement=True)
-    document_id = Column(ForeignKey("documents.document_id"))
-    user_id = Column(Integer)
-
-    _permissions = Column(Unicode)
-
-    permissions = synonym("_permissions", descriptor=serialized("_permissions"))
-    document = relationship("Document")
-
-    def __init__(self, document_id, user_id, permissions):
-        self.document_id = document_id
-        self.user_id = user_id
-        self.permissions = permissions
+        self.role = role
 
 def initialize_sql(engine):
     DBSession.configure(bind=engine)
