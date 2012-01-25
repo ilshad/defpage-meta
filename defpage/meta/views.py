@@ -93,45 +93,18 @@ def search_collections(req):
 
 def add_document(req):
     params = req.json_body
-
-    # check title
-    try:
-        title = params["title"]
-    except KeyError:
+    title = params.get("title")
+    cid = params.get("collection_id")
+    if title is None:
         raise HTTPBadRequest
-
-    # check collecton
-    cid = params.get("collection")
     if cid is not None:
-        try:
-            cid = int(cid)
-        except ValueError:
-            raise HTTPBadRequest
-
-    # check ACL
-    try:
-        acl = dict_required(params["acl"])
-    except KeyError:
-        raise HTTPBadRequest
-    success = False
-    for k,v in acl.items():
-        if type(v) is not list:
-            raise HTTPBadRequest
-        if "owner" in v:
-            success = True
-            break
-    if not success:
-        raise HTTPBadRequest
-
+        cid = int_required(cid)
     dbs = DBSession()
     doc = Document(title)
     docid = doc.document_id
     if cid:
         doc.collection_id = cid
     dbs.add(doc)
-    for userid, permissions in acl.items():
-        ob = DocumentACL(docid, userid, permissions)
-        dbs.add(ob)
     req.response.status = "201 Created"
     return {"id":docid}
 
