@@ -112,36 +112,17 @@ def edit_document(req):
     modified = False
     params = req.json_body
     title = params.get("title")
-    control = params.get("control")
-    cid = params.get("collection")
-    if cid:
-        cid = int_required(cid)
-    acl = params.get("acl")
-    if acl:
-        acl = dict_required(acl)
-    dbs = DBSession()
-    if title:
+    source = params.get("source")
+    cid = params.get("collection_id")
+    if title is not None:
         req.context.title = title
         modified = True
-    if control:
-        req.context.control = control
+    if source is not None:
+        req.context.source = source
         modified = True
-    if cid:
-        if not bool(dbs.query(Collection.collection_id).filter(Collection.collection_id==cid).count()):
-            raise HTTPBadRequest
-        req.context.collection_id = cid
+    if cid is not None:
+        req.context.collection_id = int_required(cid)
         modified = True
-    if acl:
-        for userid, permissions in acl.items():
-            q = and_(DocumentACL.document_id==docid, DocumentACL.user_id==userid)
-            old = dbs.query(DocumentACL).filter(q).first()
-            if old:
-                if old.permissions:
-                    if set(old.permissions) == set(permissions):
-                        continue
-                dbs.delete(old)
-            dbs.add(DocumentACL(cid, userid, permissions))
-            modified = True
     if modified:
         req.context.update()
     return Response(status="204 No Content")
@@ -159,4 +140,3 @@ def get_document(req):
             "modified":datetime_format(req.context.modified),
             "source":req.context.source,
             "collection_id":req.context.collection_id}
-
