@@ -88,11 +88,8 @@ def get_collection(req):
 
 def search_collections(req):
     userid = int_required(req.GET.get("user_id"))
-    r = DBSession().query(CollectionUserRole).filter(
-        CollectionUserRole.user_id==int(userid))
-    return [{"id":x.collection_id,
-             "title":x.collection.title,
-             "permissions":x.permissions} for x in r]
+    r = DBSession().query(CollectionUserRole).filter(CollectionUserRole.user_id==int(userid))
+    return [{"id":x.collection_id, "title":x.collection.title, "role":x.role} for x in r]
 
 def add_document(req):
     params = req.json_body
