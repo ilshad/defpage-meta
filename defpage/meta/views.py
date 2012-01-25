@@ -24,7 +24,7 @@ def add_collection(req):
     c = Collection(title)
     cid = c.collection_id
     dbs.add(c)
-    dbs.ad(CollectionUserRole(cid, userid, "owner"))
+    dbs.add(CollectionUserRole(cid, userid, "owner"))
     req.response.status = "201 Created"
     return {"id":cid}
 
