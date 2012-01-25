@@ -31,27 +31,26 @@ def add_collection(req):
 def edit_collection(req):
     params = req.json_body
     title = params.get("title")
-    roles = params.get("roles")
     sources = params.get("sources")
     transmissions = params.get("transmissions")
-    cid = req.context.collection_id
+    roles = params.get("roles")
     if title:
         req.context.title = title
-    if roles:
-        roles = dict_required(roles)
-        for userid, role in roles.items():
-            q = and_(CollectionUserRole.collection_id==cid,
-                     CollectionUserRole.user_id==userid)
-            old = dbs.query(CollectionUserRole).filter(q).first()
-            if old:
-                if old.role == role:
-                    continue
-                dbs.delete(old)
-            dbs.add(CollectionUserRole(cid, userid, role))
     if sources:
         req.context.sources = int_list_required(sources)
     if transmissions:
-        req.context.transmissions = int_list_required(exports)
+        req.context.transmissions = int_list_required(transmissions)
+    cid = req.context.collection_id
+    if roles:
+        dbs = DBSession()
+        roles = dict_required(roles)
+        if "owner" not in roles.values():
+            raise HTTPBadRequest
+        for i in dbs.query(CollectionUserRole).filter(
+            CollectionUserRole.collection_id==cid):
+            dbs.delete(i)
+        for userid, role in roles.items():
+            dbs.add(CollectionUserRole(cid, userid, role))
     return Response(status="204 No Content")
 
 ALLOW_DELETE = ("gd")
