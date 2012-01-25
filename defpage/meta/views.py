@@ -40,7 +40,8 @@ def edit_collection(req):
     if roles:
         roles = dict_required(roles)
         for userid, role in roles.items():
-            q = and_(CollectionUserRole.collection_id==cid, CollectionUserRole.user_id==userid)
+            q = and_(CollectionUserRole.collection_id==cid,
+                     CollectionUserRole.user_id==userid)
             old = dbs.query(CollectionUserRole).filter(q).first()
             if old:
                 if old.role == role:
@@ -73,15 +74,26 @@ def get_collection(req):
     dbs = DBSession()
     c = req.context
     cid = c.collection_id
-    roles = dict((i.user_id, i.role) for i in dbs.query(CollectionUserRole).filter(CollectionUserRole.collection_id==cid))
-    docs = [{"id":i.document_id, "title":i.title, "modified":datetime_format(i.modified), "source":i.source} for i in dbs.query(Document).filter(Document.collection_id==cid)]
-    return {"title":c.title, "sources":c.sources, "transmissions":c.transmissions, "roles":roles, "documents":docs}
+    roles = dict((i.user_id, i.role) for i in dbs.query(CollectionUserRole).filter(
+            CollectionUserRole.collection_id==cid))
+    docs = [{"id":i.document_id,
+             "title":i.title,
+             "modified":datetime_format(i.modified),
+             "source":i.source}
+            for i in dbs.query(Document).filter(Document.collection_id==cid)]
+    return {"title":c.title,
+            "sources":c.sources,
+            "transmissions":c.transmissions,
+            "roles":roles,
+            "documents":docs}
 
 def search_collections(req):
-    user_id = int_required(req.GET.get("user_id"))
-    dbs = DBSession()
-    acls = dbs.query(CollectionACL).filter(CollectionACL.user_id==int(user_id))
-    return [{"id":x.collection_id, "title":x.collection.title, "permissions":x.permissions} for x in acls]
+    userid = int_required(req.GET.get("user_id"))
+    r = DBSession().query(CollectionUserRole).filter(
+        CollectionUserRole.user_id==int(userid))
+    return [{"id":x.collection_id,
+             "title":x.collection.title,
+             "permissions":x.permissions} for x in r]
 
 def add_document(req):
     params = req.json_body
