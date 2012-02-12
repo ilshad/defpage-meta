@@ -18,6 +18,7 @@ from pyramid.security import Authenticated
 from pyramid.security import Allow
 from defpage.meta.interfaces import ICollection
 from defpage.meta.interfaces import IDocument
+from defpage.meta import roles
 from defpage.lib.util import random_string
 from defpage.lib.util import serialized
 
@@ -33,14 +34,14 @@ class Collection(Base):
     __name__ = None
     __parent__ = None
 
-    __acl__ = [(Allow, "owner", "view"),
-               (Allow, "owner", "manage"),
-               (Allow, "owner", "delete"),
+    __acl__ = [(Allow, roles.OWNER, "view"),
+               (Allow, roles.OWNER, "manage"),
+               (Allow, roles.OWNER, "delete"),
 
-               (Allow, "manager", "view"),
-               (Allow, "manager", "manage"),
+               (Allow, roles.MANAGER, "view"),
+               (Allow, roles.MANAGER, "manage"),
 
-               (Allow, "guest", "view")]
+               (Allow, roles.GUEST, "view")]
 
     collection_id = Column(Integer, primary_key=True, autoincrement=False)
     title = Column(Unicode)
