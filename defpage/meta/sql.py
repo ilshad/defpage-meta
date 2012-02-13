@@ -9,7 +9,7 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import func
 from sqlalchemy import Column
 from sqlalchemy import Integer
-from sqlalchemy import Unicode
+from sqlalchemy import UnicodeText
 from sqlalchemy import String
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
@@ -46,8 +46,8 @@ class Collection(Base):
     collection_id = Column(Integer, primary_key=True, autoincrement=False)
     title = Column(Unicode)
 
-    _sources = Column(Unicode)
-    _transmissions = Column(Unicode)
+    _sources = Column(UnicodeText)
+    _transmissions = Column(UnicodeText)
 
     sources = synonym("_sources", descriptor=serialized("_sources"))
     transmissions = synonym("_transmissions", descriptor=serialized("_transmissions"))

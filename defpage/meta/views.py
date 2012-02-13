@@ -11,7 +11,7 @@ from defpage.meta.sql import Document
 from defpage.meta.sql import CollectionUserRole
 from defpage.meta.util import int_required
 from defpage.meta.util import dict_required
-from defpage.meta.util import int_list_required
+from defpage.meta.util import dict_list_required
 from defpage.meta.util import datetime_format
 
 meta_logger = logging.getLogger("defpage_meta")
@@ -37,9 +37,9 @@ def edit_collection(req):
     if title:
         req.context.title = title
     if sources:
-        req.context.sources = int_list_required(sources)
+        req.context.sources = dict_list_required(sources)
     if transmissions:
-        req.context.transmissions = int_list_required(transmissions)
+        req.context.transmissions = dict_list_required(transmissions)
     cid = req.context.collection_id
     if roles:
         dbs = DBSession()
