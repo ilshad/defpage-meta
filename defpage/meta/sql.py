@@ -9,6 +9,7 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import func
 from sqlalchemy import Column
 from sqlalchemy import Integer
+from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
 from sqlalchemy import String
 from sqlalchemy import DateTime
