@@ -81,8 +81,8 @@ def get_collection(req):
              "source":i.source}
             for i in dbs.query(Document).filter(Document.collection_id==cid)]
     return {"title":c.title,
-            "sources":c.sources,
-            "transmissions":c.transmissions,
+            "sources":c.sources or [],
+            "transmissions":c.transmissions or [],
             "roles":roles,
             "documents":docs}
 
