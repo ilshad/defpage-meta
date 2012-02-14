@@ -109,11 +109,11 @@ def add_document(req):
     return {"id":docid}
 
 def edit_document(req):
-    modified = False
     params = req.json_body
     title = params.get("title")
     source = params.get("source")
     cid = params.get("collection_id")
+    modified = params.get("modified", False)
     if title is not None:
         req.context.title = title
         modified = True
