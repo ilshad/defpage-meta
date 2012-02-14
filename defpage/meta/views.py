@@ -94,6 +94,7 @@ def search_collections(req):
 def add_document(req):
     params = req.json_body
     title = params.get("title")
+    source = params.get("source")
     cid = params.get("collection_id")
     if title is None:
         raise HTTPBadRequest
@@ -102,6 +103,8 @@ def add_document(req):
     dbs = DBSession()
     doc = Document(title)
     docid = doc.document_id
+    if source:
+        doc.source = source
     if cid:
         doc.collection_id = cid
     dbs.add(doc)
