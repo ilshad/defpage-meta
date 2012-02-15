@@ -23,13 +23,13 @@ def main(global_config, **settings):
     config.add_route("doc", "/documents/{name}", factory=get_document, custom_predicates=(is_int,))
 
     config.add_view("defpage.meta.views.add_collection", route_name="cols", renderer="json", request_method="POST")
-    config.add_view("defpage.meta.views.edit_collection", route_name="col", request_method="PUT", permission="manage")
+    config.add_view("defpage.meta.views.edit_collection", route_name="col", request_method="POSTT", permission="manage")
     config.add_view("defpage.meta.views.del_collection", route_name="col", request_method="DELETE", permission="delete")
     config.add_view("defpage.meta.views.get_collection", route_name="col", renderer="json", request_method="GET", permission="view")
     config.add_view("defpage.meta.views.search_collections", route_name="cols", renderer="json", request_method="GET")
 
     config.add_view("defpage.meta.views.add_document", route_name="docs", renderer="json", request_method="POST")
-    config.add_view("defpage.meta.views.edit_document", route_name="doc", request_method="PUT")
+    config.add_view("defpage.meta.views.edit_document", route_name="doc", request_method="POST")
     config.add_view("defpage.meta.views.del_document", route_name="doc", request_method="DELETE")
     config.add_view("defpage.meta.views.get_document", route_name="doc", renderer="json", request_method="GET")
 
