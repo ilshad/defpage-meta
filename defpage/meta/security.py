@@ -3,14 +3,14 @@ from defpage.meta.sql import DBSession
 from defpage.meta.sql import CollectionUserRole
 from defpage.meta.interfaces import ICollection
 from defpage.meta.config import system_params
-from defpage.meta import roles
+from defpage.meta.roles import OWNER
 
 def security_checker(credentials, request):
     roles = []
     userid = credentials["login"]
     if userid:
-        if userid == system_params["system_user"]:
-            roles.append(roles.OWNER)
+        if userid == system_params.system_user:
+            roles.append(OWNER)
         else:
             c = ICollection(request.context, None)
             if c:
