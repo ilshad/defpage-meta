@@ -1,4 +1,5 @@
 import logging
+import json
 from sqlalchemy import and_
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
@@ -104,7 +105,7 @@ def add_document(req):
     doc = Document(title)
     docid = doc.document_id
     if source:
-        doc.source = source
+        doc.source = json.dumps(source)
     if cid:
         doc.collection_id = cid
     dbs.add(doc)
