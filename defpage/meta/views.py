@@ -1,5 +1,6 @@
 import logging
 import json
+import time
 from sqlalchemy import and_
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
@@ -13,7 +14,6 @@ from defpage.meta.sql import CollectionUserRole
 from defpage.meta.util import int_required
 from defpage.meta.util import dict_required
 from defpage.meta.util import dict_list_required
-from defpage.meta.util import datetime_format
 
 meta_logger = logging.getLogger("defpage_meta")
 
@@ -78,7 +78,7 @@ def get_collection(req):
             CollectionUserRole.collection_id==cid))
     docs = [{"id":i.document_id,
              "title":i.title,
-             "modified":datetime_format(i.modified),
+             "modified":int(time.mktime(i.modified.timetuple())),
              "source":i.source}
             for i in dbs.query(Document).filter(Document.collection_id==cid)]
     return {"title":c.title,
