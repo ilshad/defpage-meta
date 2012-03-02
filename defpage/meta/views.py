@@ -62,8 +62,7 @@ def del_collection(req):
         dbs.delete(r)
     docs = dbs.query(Document).filter(Document.collection_id==cid)
     for d in docs:
-        control = d.source.split(":", 1)
-        if control[0] in ALLOW_DELETE:
+        if d.source["type"] in ALLOW_DELETE:
             dbs.delete(d)
     dbs.delete(req.context)
     return Response(status="204 No Content")
