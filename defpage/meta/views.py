@@ -1,6 +1,5 @@
 import logging
 import json
-import time
 from sqlalchemy import and_
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
@@ -78,7 +77,7 @@ def get_collection(req):
             CollectionUserRole.collection_id==cid))
     docs = [{"id":i.document_id,
              "title":i.title,
-             "modified":int(i.modified.strftime("%s")),
+             "modified":i.modified,
              "source":i.source}
             for i in dbs.query(Document).filter(Document.collection_id==cid)]
     return {"title":c.title,
@@ -119,18 +118,14 @@ def edit_document(req):
     source = params.get("source")
     cid = params.get("collection_id")
     modified = params.get("modified")
-    update = False
     if title is not None:
         req.context.title = title
-        update = True
     if source is not None:
         req.context.source = source
-        update = True
     if cid is not None:
         req.context.collection_id = int_required(cid)
-        update = True
-    if update or modified:
-        req.context.update(modified)
+    if modified:
+        req.context.modified = int_required(modified)
     return Response(status="204 No Content")
 
 def del_document(req):
@@ -139,6 +134,6 @@ def del_document(req):
 
 def get_document(req):
     return {"title":req.context.title,
-            "modified":datetime_format(req.context.modified),
+            "modified":req.context.modified,
             "source":req.context.source,
             "collection_id":req.context.collection_id}

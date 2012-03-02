@@ -1,4 +1,3 @@
-from datetime import datetime
 from zope.interface import implementer
 from zope.sqlalchemy import ZopeTransactionExtension
 from sqlalchemy.ext.declarative import declarative_base
@@ -12,7 +11,6 @@ from sqlalchemy import Integer
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
 from sqlalchemy import String
-from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from pyramid.security import Everyone
 from pyramid.security import Authenticated
@@ -73,16 +71,13 @@ class Document(Base):
     document_id = Column(Integer, primary_key=True, autoincrement=False)
     collection_id = Column(ForeignKey("collections.collection_id"))
     title = Column(Unicode)
-    modified = Column(DateTime)
+    modified = Column(Integer)
     source = Column(Unicode)
 
     def __init__(self, title, modified):
         self.title = title
+        self.modified = modified
         self.document_id = self._create_id()
-        self.update(modified)
-
-    def update(self, modified):
-        self.modified = modified and datetime.utcfromtimestamp(modified) or datetime.utcnow()
 
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Document.document_id)).scalar() or 0)
