@@ -76,13 +76,13 @@ class Document(Base):
     modified = Column(DateTime)
     source = Column(Unicode)
 
-    def __init__(self, title, forced):
+    def __init__(self, title, modified):
         self.title = title
         self.document_id = self._create_id()
-        self.update(forced)
+        self.update(modified)
 
-    def update(self, forced):
-        self.modified = forced and datetime.fromtimestamp(forced) or datetime.utcnow()
+    def update(self, modified):
+        self.modified = modified and datetime.fromtimestamp(modified) or datetime.utcnow()
 
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Document.document_id)).scalar() or 0)

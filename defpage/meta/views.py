@@ -97,13 +97,13 @@ def add_document(req):
     title = params.get("title")
     source = params.get("source")
     cid = params.get("collection_id")
-    forced = params.get("modified")
+    modified = params.get("modified")
     if title is None:
         raise HTTPBadRequest
     if cid is not None:
         cid = int_required(cid)
     dbs = DBSession()
-    doc = Document(title, forced)
+    doc = Document(title, modified)
     docid = doc.document_id
     if source:
         doc.source = json.dumps(source)
@@ -118,19 +118,19 @@ def edit_document(req):
     title = params.get("title")
     source = params.get("source")
     cid = params.get("collection_id")
-    forced = params.get("modified")
-    modified = False
+    modified = params.get("modified")
+    update = False
     if title is not None:
         req.context.title = title
-        modified = True
+        update = True
     if source is not None:
         req.context.source = source
-        modified = True
+        update = True
     if cid is not None:
         req.context.collection_id = int_required(cid)
-        modified = True
-    if modified or forced:
-        req.context.update(forced)
+        update = True
+    if update or modified:
+        req.context.update(modified)
     return Response(status="204 No Content")
 
 def del_document(req):
