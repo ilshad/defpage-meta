@@ -75,7 +75,7 @@ class Document(Base):
 
     _source = Column(Unicode)
 
-    source = Column("_source", descriptor=serialized("_source"))
+    source = synonym("_source", descriptor=serialized("_source"))
 
     def __init__(self, title, modified):
         self.title = title
