@@ -45,8 +45,8 @@ class Collection(Base):
     collection_id = Column(Integer, primary_key=True, autoincrement=False)
     title = Column(Unicode)
 
-    _sources = Column(UnicodeText)
-    _transmissions = Column(UnicodeText)
+    _sources = Column("sources", UnicodeText)
+    _transmissions = Column("transmissions", UnicodeText)
 
     sources = synonym("_sources", descriptor=serialized("_sources"))
     transmissions = synonym("_transmissions", descriptor=serialized("_transmissions"))
