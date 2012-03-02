@@ -97,12 +97,13 @@ def add_document(req):
     title = params.get("title")
     source = params.get("source")
     cid = params.get("collection_id")
+    forced = params.get("modified")
     if title is None:
         raise HTTPBadRequest
     if cid is not None:
         cid = int_required(cid)
     dbs = DBSession()
-    doc = Document(title)
+    doc = Document(title, forced)
     docid = doc.document_id
     if source:
         doc.source = json.dumps(source)

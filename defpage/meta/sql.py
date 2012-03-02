@@ -76,10 +76,10 @@ class Document(Base):
     modified = Column(DateTime)
     source = Column(Unicode)
 
-    def __init__(self, title):
+    def __init__(self, title, forced):
         self.title = title
         self.document_id = self._create_id()
-        self.update()
+        self.update(forced)
 
     def update(self, forced):
         self.modified = forced and datetime.fromtimestamp(forced) or datetime.utcnow()
