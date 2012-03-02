@@ -78,7 +78,7 @@ def get_collection(req):
             CollectionUserRole.collection_id==cid))
     docs = [{"id":i.document_id,
              "title":i.title,
-             "modified":datetime_format(shift_time(i.modified, 3600)), # 10 min down
+             "modified":datetime_format(i.modified),
              "source":i.source}
             for i in dbs.query(Document).filter(Document.collection_id==cid)]
     return {"title":c.title,
