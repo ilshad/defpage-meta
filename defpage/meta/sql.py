@@ -81,8 +81,8 @@ class Document(Base):
         self.document_id = self._create_id()
         self.update()
 
-    def update(self):
-        self.modified = datetime.utcnow()
+    def update(self, forced):
+        self.modified = forced and datetime.fromtimestamp(forced) or datetime.utcnow()
 
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Document.document_id)).scalar() or 0)

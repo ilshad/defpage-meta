@@ -23,6 +23,3 @@ DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 def datetime_format(dt):
     return dt.strftime(DATETIME_FORMAT)
-
-def shift_time(dt, seconds):
-    return dt - datetime.timedelta(seconds=seconds)

@@ -14,7 +14,6 @@ from defpage.meta.util import int_required
 from defpage.meta.util import dict_required
 from defpage.meta.util import dict_list_required
 from defpage.meta.util import datetime_format
-from defpage.meta.util import shift_time
 
 meta_logger = logging.getLogger("defpage_meta")
 
@@ -118,7 +117,8 @@ def edit_document(req):
     title = params.get("title")
     source = params.get("source")
     cid = params.get("collection_id")
-    modified = params.get("modified", False)
+    forced = params.get("modified")
+    modified = False
     if title is not None:
         req.context.title = title
         modified = True
@@ -128,8 +128,8 @@ def edit_document(req):
     if cid is not None:
         req.context.collection_id = int_required(cid)
         modified = True
-    if modified:
-        req.context.update()
+    if modified or forced:
+        req.context.update(forced)
     return Response(status="204 No Content")
 
 def del_document(req):
