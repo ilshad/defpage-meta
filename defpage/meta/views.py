@@ -1,5 +1,4 @@
 import logging
-import transaction
 from sqlalchemy import and_
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
@@ -66,7 +65,6 @@ def del_collection(req):
         control = d.source.split(":", 1)
         if control[0] in ALLOW_DELETE:
             dbs.delete(d)
-    transaction.commit()
     dbs.delete(req.context)
     return Response(status="204 No Content")
 
