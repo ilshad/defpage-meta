@@ -1,5 +1,5 @@
 import logging
-import json
+import transaction
 from sqlalchemy import and_
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
@@ -66,6 +66,7 @@ def del_collection(req):
         control = d.source.split(":", 1)
         if control[0] in ALLOW_DELETE:
             dbs.delete(d)
+    transaction.commit()
     dbs.delete(req.context)
     return Response(status="204 No Content")
 
@@ -99,13 +100,13 @@ def add_document(req):
     modified = params.get("modified")
     if title is None:
         raise HTTPBadRequest
-    if cid is not None:
+    if cid:
         cid = int_required(cid)
     dbs = DBSession()
     doc = Document(title, modified)
     docid = doc.document_id
     if source:
-        doc.source = json.dumps(source)
+        doc.source = source
     if cid:
         doc.collection_id = cid
     dbs.add(doc)
@@ -118,11 +119,11 @@ def edit_document(req):
     source = params.get("source")
     cid = params.get("collection_id")
     modified = params.get("modified")
-    if title is not None:
+    if title:
         req.context.title = title
-    if source is not None:
+    if source:
         req.context.source = source
-    if cid is not None:
+    if cid:
         req.context.collection_id = int_required(cid)
     if modified:
         req.context.modified = int_required(modified)

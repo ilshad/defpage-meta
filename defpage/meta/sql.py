@@ -72,7 +72,10 @@ class Document(Base):
     collection_id = Column(ForeignKey("collections.collection_id"))
     title = Column(Unicode)
     modified = Column(Integer)
-    source = Column(Unicode)
+
+    _source = Column(Unicode)
+
+    source = Column("_source", descriptor=serialized("_source"))
 
     def __init__(self, title, modified):
         self.title = title
