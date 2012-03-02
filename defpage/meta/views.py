@@ -14,6 +14,7 @@ from defpage.meta.util import int_required
 from defpage.meta.util import dict_required
 from defpage.meta.util import dict_list_required
 from defpage.meta.util import datetime_format
+from defpage.meta.util import shift_time
 
 meta_logger = logging.getLogger("defpage_meta")
 
@@ -78,7 +79,7 @@ def get_collection(req):
             CollectionUserRole.collection_id==cid))
     docs = [{"id":i.document_id,
              "title":i.title,
-             "modified":datetime_format(i.modified),
+             "modified":datetime_format(shift_time(i.modified, 3600)), # 10 min down
              "source":i.source}
             for i in dbs.query(Document).filter(Document.collection_id==cid)]
     return {"title":c.title,
