@@ -117,7 +117,7 @@ def edit_document(req):
     title = params.get("title")
     source = params.get("source")
     cid = params.get("collection_id")
-    modified = params.get("modified") == "true"
+    modified = params.get("modified", False)
     if title is not None:
         req.context.title = title
         modified = True
