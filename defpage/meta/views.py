@@ -1,5 +1,6 @@
 import logging
 from sqlalchemy import and_
+from sqlalchemy.sql import func
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPBadRequest
@@ -94,8 +95,10 @@ def search_collections(req):
                  "title":x.collection.title,
                  "role":x.role}
                 for x in r]
-    if info == "total_num":
-        return {"total_num": DBSession().query(Collection).count()}
+    elif info == "total_num":
+        return {"total_num": DBSession().query(Collection.collection_id).count()}
+    elif info == "max_id":
+        return {"max_id": DBSession().query(func.max(Collection.collection_id)).scalar()}
 
 def add_document(req):
     params = req.json_body
