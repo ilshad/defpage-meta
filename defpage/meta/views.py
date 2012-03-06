@@ -1,4 +1,5 @@
 import logging
+import transaction
 from sqlalchemy import and_
 from sqlalchemy.sql import func
 from pyramid.response import Response
@@ -65,6 +66,7 @@ def del_collection(req):
     for d in docs:
         if d.source["type"] in ALLOW_DELETE:
             dbs.delete(d)
+    transaction.commit()
     dbs.delete(req.context)
     return Response(status="204 No Content")
 
