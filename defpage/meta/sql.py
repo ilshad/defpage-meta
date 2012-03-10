@@ -44,11 +44,13 @@ class Collection(Base):
 
     collection_id = Column(Integer, primary_key=True, autoincrement=False)
     title = Column(Unicode)
+    source_id = Column(Integer)
 
-    _sources = Column("sources", UnicodeText)
+    # (GD) dict -> folder_id::String
+    _source_details = Column("source_details", UnicodeText)
+    source_details = synonym("_source_details", descriptor=serialized("_source_details"))
+
     _transmissions = Column("transmissions", UnicodeText)
-
-    sources = synonym("_sources", descriptor=serialized("_sources"))
     transmissions = synonym("_transmissions", descriptor=serialized("_transmissions"))
 
     def __init__(self, title):
@@ -57,6 +59,43 @@ class Collection(Base):
 
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Collection.collection_id)).scalar() or 0)
+
+class Source(Base):
+
+    __tablename__ = "sources"
+
+    source_id = Column(Integer, primary_key=True, autoincrement=False)
+
+    source_type = Column(Unicode)
+    user_id = Column(Integer)
+
+    # (GD) dict -> access_token::String, refresh_token::String, token_expiry::Integer
+    _source_details = Column("source_details", UnicodeText)
+    source_details = synonym("_source_details", descriptor=serialized("_source_details"))
+
+    def __init__(self, source_type, user_id):
+        self.source_type = source_type
+        self.user_id = user_id
+        self.source_id = self._create_id()
+
+    def _create_id(self):
+        return 1 + (DBSession().query(func.max(Source.source_id)).scalar() or 0)
+
+class CollectionUserRole(Base):
+
+    __tablename__ = "collection_user_roles"
+
+    role_id = Column(Integer, primary_key=True, autoincrement=True)
+    collection_id = Column(ForeignKey("collections.collection_id"))
+    user_id = Column(Integer)
+    role = Column(String)
+
+    collection = relationship("Collection")
+
+    def __init__(self, collection_id, user_id, role):
+        self.collection_id = collection_id
+        self.user_id = user_id
+        self.role = role
 
 @implementer(IDocument)
 class Document(Base):
@@ -84,22 +123,6 @@ class Document(Base):
 
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Document.document_id)).scalar() or 0)
-
-class CollectionUserRole(Base):
-
-    __tablename__ = "collection_user_roles"
-
-    role_id = Column(Integer, primary_key=True, autoincrement=True)
-    collection_id = Column(ForeignKey("collections.collection_id"))
-    user_id = Column(Integer)
-    role = Column(String)
-
-    collection = relationship("Collection")
-
-    def __init__(self, collection_id, user_id, role):
-        self.collection_id = collection_id
-        self.user_id = user_id
-        self.role = role
 
 def initialize_sql(engine):
     DBSession.configure(bind=engine)

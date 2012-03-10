@@ -10,10 +10,13 @@ from defpage.meta.sql import DBSession
 from defpage.meta.config import system_params
 from defpage.meta.sql import Collection
 from defpage.meta.sql import Document
+from defpage.meta.sql import Source
 from defpage.meta.sql import CollectionUserRole
 from defpage.meta.util import int_required
 from defpage.meta.util import dict_required
 from defpage.meta.util import dict_list_required
+from defpage.meta.util import is_equal_items
+from defpage.meta.source import make_details
 
 meta_logger = logging.getLogger("defpage_meta")
 
@@ -30,6 +33,8 @@ def add_collection(req):
     return {"id":cid}
 
 def edit_collection(req):
+    userid = authenticated_userid(req)
+    dbs = DBSession()
     params = req.json_body
     title = params.get("title")
     sources = params.get("sources")
@@ -38,12 +43,31 @@ def edit_collection(req):
     if title:
         req.context.title = title
     if sources:
-        req.context.sources = dict_list_required(sources)
+        sources = dict_list_required(sources)
+        stype = source["source_type"]
+        s = dbs.query(Source).filter(and_(
+                Source.user_id==userid,
+                Source.source_type==stype
+                )).scalar()
+        if s:
+            if not req.context.source_id:
+                req.context.source_id = s.source_id
+            elif req.context.source_id != s.source_id:
+                raise HTTPBadRequest, "Change source is not allowed"
+            if not is_equal_items(s.source_details, sources):
+                s.source_details = make_details(stype, "source", sources)
+            if not is_equal_items(req.context.source_details, sources):
+                req.context.source_details = make_details(stype, "collection", sources)
+        else:
+            s = Source(stype, userid)
+            s.source_details = make_details(stype, "source", sources)
+            req.context.source_id = s.source_id
+            req.context.source_details = make_details(stype, "collection", sources)
+            dbs.add(s)
     if transmissions:
         req.context.transmissions = dict_list_required(transmissions)
     cid = req.context.collection_id
     if roles:
-        dbs = DBSession()
         roles = dict_required(roles)
         if "owner" not in roles.values():
             raise HTTPBadRequest
@@ -81,8 +105,14 @@ def get_collection(req):
              "modified":i.modified,
              "source":i.source}
             for i in dbs.query(Document).filter(Document.collection_id==cid)]
+    source = {}
+    if c.source_id:
+        s = dbs.query(Source).filter(Source.source_id==c.source_id).scalar()
+        source.update(s.source_details)
+        source.update(c.source_details)
+        source["type"] = s.source_type
     return {"title":c.title,
-            "sources":c.sources or [],
+            "sources":source and [source] or [],
             "transmissions":c.transmissions or [],
             "roles":roles,
             "documents":docs}
@@ -131,12 +161,12 @@ def edit_document(req):
     modified = params.get("modified")
     if title:
         req.context.title = title
-    if source:
-        req.context.source = source
     if cid:
         req.context.collection_id = int_required(cid)
     if modified:
         req.context.modified = int_required(modified)
+    if source:
+        req.context.source = source
     return Response(status="204 No Content")
 
 def del_document(req):
