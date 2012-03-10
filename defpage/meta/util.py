@@ -19,6 +19,8 @@ def dict_list_required(v):
     return [dict_required(i) for i in v]
 
 def is_equal_items(d1, d2):
+    if not d1:
+        return False
     for k,v in d1.items():
         try:
             if d2[k] != v:

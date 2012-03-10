@@ -22,8 +22,11 @@ meta_logger = logging.getLogger("defpage_meta")
 
 def add_collection(req):
     params = req.json_body
-    title = params["title"]
-    userid = int_required(params["owner"])
+    try:
+        title = params["title"]
+        userid = int_required(params["owner"])
+    except KeyError:
+        raise HTTPBadRequest
     dbs = DBSession()
     c = Collection(title)
     cid = c.collection_id
@@ -44,7 +47,7 @@ def edit_collection(req):
         req.context.title = title
     if source:
         source = dict_required(source)
-        stype = source["source_type"]
+        stype = source["type"]
         s = dbs.query(Source).filter(and_(
                 Source.user_id==userid,
                 Source.source_type==stype
