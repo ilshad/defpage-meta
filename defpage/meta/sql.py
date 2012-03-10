@@ -46,7 +46,6 @@ class Collection(Base):
     title = Column(Unicode)
     source_id = Column(Integer)
 
-    # (GD) dict -> folder_id::String
     _source_details = Column("source_details", UnicodeText)
     source_details = synonym("_source_details", descriptor=serialized("_source_details"))
 
@@ -69,7 +68,6 @@ class Source(Base):
     source_type = Column(Unicode)
     user_id = Column(Integer)
 
-    # (GD) dict -> access_token::String, refresh_token::String, token_expiry::Integer
     _source_details = Column("source_details", UnicodeText)
     source_details = synonym("_source_details", descriptor=serialized("_source_details"))
 
