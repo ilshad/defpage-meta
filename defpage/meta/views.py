@@ -37,13 +37,13 @@ def edit_collection(req):
     dbs = DBSession()
     params = req.json_body
     title = params.get("title")
-    sources = params.get("sources")
+    source = params.get("source")
     transmissions = params.get("transmissions")
     roles = params.get("roles")
     if title:
         req.context.title = title
-    if sources:
-        sources = dict_list_required(sources)
+    if source:
+        source = dict_required(source)
         stype = source["source_type"]
         s = dbs.query(Source).filter(and_(
                 Source.user_id==userid,
@@ -54,15 +54,15 @@ def edit_collection(req):
                 req.context.source_id = s.source_id
             elif req.context.source_id != s.source_id:
                 raise HTTPBadRequest, "Change source is not allowed"
-            if not is_equal_items(s.source_details, sources):
-                s.source_details = make_details(stype, "source", sources)
-            if not is_equal_items(req.context.source_details, sources):
-                req.context.source_details = make_details(stype, "collection", sources)
+            if not is_equal_items(s.source_details, source):
+                s.source_details = make_details(stype, "source", source)
+            if not is_equal_items(req.context.source_details, source):
+                req.context.source_details = make_details(stype, "collection", source)
         else:
             s = Source(stype, userid)
-            s.source_details = make_details(stype, "source", sources)
+            s.source_details = make_details(stype, "source", source)
             req.context.source_id = s.source_id
-            req.context.source_details = make_details(stype, "collection", sources)
+            req.context.source_details = make_details(stype, "collection", source)
             dbs.add(s)
     if transmissions:
         req.context.transmissions = dict_list_required(transmissions)
@@ -112,7 +112,7 @@ def get_collection(req):
         source.update(c.source_details)
         source["type"] = s.source_type
     return {"title":c.title,
-            "sources":source and [source] or [],
+            "source":source or None,
             "transmissions":c.transmissions or [],
             "roles":roles,
             "documents":docs}
