@@ -31,7 +31,7 @@ def add_collection(req):
     c = Collection(title)
     cid = c.collection_id
     dbs.add(c)
-    dbs.add(CollectionUserRole(cid, userid, "owner"))
+    dbs.add(CollectionUserRole(cid, userid, u"owner"))
     req.response.status = "201 Created"
     return {"id":cid}
 
@@ -72,7 +72,7 @@ def edit_collection(req):
     cid = req.context.collection_id
     if roles:
         roles = dict_required(roles)
-        if "owner" not in roles.values():
+        if u"owner" not in roles.values():
             raise HTTPBadRequest
         for i in dbs.query(CollectionUserRole).filter(
             CollectionUserRole.collection_id==cid):

@@ -10,7 +10,6 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
-from sqlalchemy import String
 from sqlalchemy import ForeignKey
 from pyramid.security import Everyone
 from pyramid.security import Authenticated
@@ -86,7 +85,7 @@ class CollectionUserRole(Base):
     role_id = Column(Integer, primary_key=True, autoincrement=True)
     collection_id = Column(ForeignKey("collections.collection_id"))
     user_id = Column(Integer)
-    role = Column(String)
+    role = Column(Unicode)
 
     collection = relationship("Collection")
 
