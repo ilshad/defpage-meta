@@ -28,6 +28,8 @@ def main(global_config, **settings):
                      factory=get_document,
                      custom_predicates=(is_int,))
 
+    config.add_route("sources", "/sources/{user_id}/{source_type}")
+
     config.add_view("defpage.meta.views.add_collection",
                     route_name="cols",
                     renderer="json",
@@ -71,5 +73,9 @@ def main(global_config, **settings):
                     route_name="doc",
                     renderer="json",
                     request_method="GET")
+
+    config.add_view("defpage.meta.views.check_source",
+                    route_name="sources",
+                    request_method="HEAD")
 
     return config.make_wsgi_app()
