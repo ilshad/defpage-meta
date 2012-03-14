@@ -187,4 +187,8 @@ def check_source(req):
     return Response()
 
 def set_source(req):
+    params = req.json_body
+    cid = int_required(params.get("collection_id"))
+    c = DBSession().query(Collection).filter(Collection.collection_id==cid).scalar()
+    c.source_id = req.context.source_id
     return Response()
