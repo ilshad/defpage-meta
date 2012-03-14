@@ -184,8 +184,7 @@ def get_document(req):
             "collection_id":req.context.collection_id}
 
 def check_source(req):
-    if bool(DBSession().query(Source.source_id).filter(
-            and_(Source.user_id==int_required(req.matchdict["user_id"]),
-                 Source.source_type==req.matchdict["source_type"])).scalar()):
-        return Response(status="200 OK")
-    raise HTTPNotFound
+    return Response()
+
+def set_source(req):
+    return Response()

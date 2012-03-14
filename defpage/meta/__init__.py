@@ -7,6 +7,7 @@ from defpage.meta.sql import initialize_sql
 from defpage.meta.security import security_checker
 from defpage.meta.resources import get_collection
 from defpage.meta.resources import get_document
+from defpage.meta.resources import get_source
 
 def main(global_config, **settings):
     system_params.update(settings)
@@ -19,16 +20,20 @@ def main(global_config, **settings):
                           authentication_policy=authentication_policy)
 
     config.add_route("cols", "/collections/")
+
     config.add_route("col", "/collections/{name}",
                      factory=get_collection,
                      custom_predicates=(is_int,))
 
     config.add_route("docs", "/documents/")
+
     config.add_route("doc", "/documents/{name}",
                      factory=get_document,
                      custom_predicates=(is_int,))
 
-    config.add_route("sources", "/sources/{user_id}/{source_type}")
+    config.add_route("sources", "/sources/{name}/{source_type}",
+                     factory=get_source,
+                     custom_predicates=(is_int,))
 
     config.add_view("defpage.meta.views.add_collection",
                     route_name="cols",
@@ -77,5 +82,9 @@ def main(global_config, **settings):
     config.add_view("defpage.meta.views.check_source",
                     route_name="sources",
                     request_method="HEAD")
+
+    config.add_view("defpage.meta.views.set_source",
+                    route_name="sources",
+                    request_method="POST")
 
     return config.make_wsgi_app()
