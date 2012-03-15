@@ -6,6 +6,7 @@ from sqlalchemy.sql import exists
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.httpexceptions import HTTPForbidden
 from pyramid.security import authenticated_userid
 from defpage.meta.sql import DBSession
 from defpage.meta.config import system_params
@@ -186,8 +187,8 @@ def get_document(req):
 def set_source(req):
     params = req.json_body
     cid = int_required(params.get("collection_id"))
-    force = params.get("force") is True
     c = DBSession().query(Collection).filter(Collection.collection_id==cid).scalar()
-    if not c.source_id or force:
-        c.source_id = req.context.source_id
+    if c.source_id and (params.get("force") is not True):
+        raise HTTPForbidden
+    c.source_id = req.context.source_id
     return Response()
