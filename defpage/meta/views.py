@@ -183,12 +183,11 @@ def get_document(req):
             "source":req.context.source,
             "collection_id":req.context.collection_id}
 
-def check_source(req):
-    return Response()
-
 def set_source(req):
     params = req.json_body
     cid = int_required(params.get("collection_id"))
+    force = params.get("force") is True
     c = DBSession().query(Collection).filter(Collection.collection_id==cid).scalar()
-    c.source_id = req.context.source_id
+    if not c.source_id or force:
+        c.source_id = req.context.source_id
     return Response()

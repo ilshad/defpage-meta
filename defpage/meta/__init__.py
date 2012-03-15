@@ -79,10 +79,6 @@ def main(global_config, **settings):
                     renderer="json",
                     request_method="GET")
 
-    config.add_view("defpage.meta.views.check_source",
-                    route_name="sources",
-                    request_method="HEAD")
-
     config.add_view("defpage.meta.views.set_source",
                     route_name="sources",
                     request_method="POST")
