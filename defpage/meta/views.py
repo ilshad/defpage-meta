@@ -209,4 +209,4 @@ def set_source(req):
     if c.source_id and (params.get("force") is not True):
         raise HTTPForbidden
     c.source_id = req.context.source_id
-    return Response()
+    return Response(status="204 No Content")
