@@ -132,7 +132,7 @@ def get_collection(req):
     if c.source_id:
         s = dbs.query(Source).filter(Source.source_id==c.source_id).scalar()
         source.update(s.source_details)
-        source.update(c.source_details)
+        source.update(c.source_details or {})
         source["type"] = s.source_type
     return {"title":c.title,
             "source":source or None,
