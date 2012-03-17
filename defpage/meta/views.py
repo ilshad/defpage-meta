@@ -47,28 +47,46 @@ def edit_collection(req):
     roles = params.get("roles")
     if title:
         req.context.title = title
+
+    #################################
+    #
+    # Configure source for collection
+    #
+    #################################
     if source:
         source = dict_required(source)
         stype = source["type"]
-        s = dbs.query(Source).filter(and_(
-                Source.user_id==userid,
-                Source.source_type==stype
-                )).scalar()
-        if s:
-            if not req.context.source_id:
+        if not req.context.source_id:
+            # Define source.
+            # User id should be real, not system user.
+            userid = int_required(userid)
+            s = dbs.query(Source).filter(and_(
+                    Source.user_id==userid,
+                    Source.source_type==stype
+                    )).scalar()
+            if not s:
+                # There is no such source for this {user id, source type},
+                # so create new source.
+                s = Source(stype, userid)
+                s.source_details = make_details(stype, "source", source)
                 req.context.source_id = s.source_id
-            elif req.context.source_id != s.source_id:
-                raise HTTPBadRequest, "Change source is not allowed"
+                req.context.source_details = make_details(stype, "collection", source)
+                dbs.add(s)
+            else:
+                # Assign existing source to this colllection.
+                req.context.source_id = s.source_id
+                req.context.source_details = make_details(stype, "collection", source)
+        else:
+            # Update already configured collection source data.
+            # User id can be system, therefore do not pass userid into database.
+            s = dbs.query(Source).filter(
+                Source.source_id==req.context.source_id
+                ).scalar()
             if not is_equal_items(s.source_details, source):
                 s.source_details = make_details(stype, "source", source)
             if not is_equal_items(req.context.source_details, source):
                 req.context.source_details = make_details(stype, "collection", source)
-        else:
-            s = Source(stype, userid)
-            s.source_details = make_details(stype, "source", source)
-            req.context.source_id = s.source_id
-            req.context.source_details = make_details(stype, "collection", source)
-            dbs.add(s)
+
     if transmissions:
         req.context.transmissions = dict_list_required(transmissions)
     cid = req.context.collection_id
@@ -103,8 +121,8 @@ def get_collection(req):
     dbs = DBSession()
     c = req.context
     cid = c.collection_id
-    roles = dict((i.user_id, i.role) for i in dbs.query(CollectionUserRole).filter(
-            CollectionUserRole.collection_id==cid))
+    roles = dict((i.user_id, i.role) for i in dbs.query(CollectionUserRole).filter( 
+           CollectionUserRole.collection_id==cid))
     docs = [{"id":i.document_id,
              "title":i.title,
              "modified":i.modified,
