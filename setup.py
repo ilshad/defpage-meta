@@ -9,10 +9,12 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     'pyramid',
-    'repoze.tm2>=1.0b1', # default_commit_veto
     'sqlalchemy',
+    'transaction',
+    'pyramid_tm',
+    'pyramid_debugtoolbar',
     'zope.sqlalchemy',
-    'WebError',
+    'waitress',
     'psycopg2',
     'httplib2',
     'defpage.lib',
