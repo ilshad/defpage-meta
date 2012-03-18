@@ -1,5 +1,4 @@
 import os
-import sys
 
 from setuptools import setup, find_packages
 
@@ -20,9 +19,6 @@ requires = [
     'defpage.lib',
     ]
 
-if sys.version_info[:3] < (2,5,0):
-    requires.append('pysqlite')
-
 setup(name='defpage.meta',
       version='0.1',
       description='defpage metadata server unit',
@@ -37,6 +33,5 @@ setup(name='defpage.meta',
       entry_points = """\
       [paste.app_factory]
       main = defpage.meta:main
-      """,
-      paster_plugins=['pyramid'],
+      """
       )
