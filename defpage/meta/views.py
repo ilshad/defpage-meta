@@ -122,12 +122,8 @@ def get_collection(req):
     c = req.context
     cid = c.collection_id
     roles = dict((i.user_id, i.role) for i in dbs.query(CollectionUserRole).filter( 
-           CollectionUserRole.collection_id==cid))
-    docs = [{"id":i.document_id,
-             "title":i.title,
-             "modified":i.modified,
-             "source":i.source}
-            for i in dbs.query(Document).filter(Document.collection_id==cid)]
+            CollectionUserRole.collection_id==cid))
+    length = dbs.query(Document.document_id).filter(Document.collection_id==cid).count()
     source = {}
     if c.source_id:
         s = dbs.query(Source).filter(Source.source_id==c.source_id).scalar()
@@ -135,19 +131,18 @@ def get_collection(req):
         source.update(c.source_details or {})
         source["type"] = s.source_type
     return {"title":c.title,
+            "length":length,
             "source":source or None,
             "transmissions":c.transmissions or [],
-            "roles":roles,
-            "documents":docs}
+            "roles":roles}
 
 def get_collection_documents(req):
-    dbs = DBSession()
     cid = req.context.collection_id
     return [{"id":i.document_id,
              "title":i.title,
              "modified":i.modified,
              "source":i.source}
-            for i in dbs.query(Document).filter(Document.collection_id==cid)]
+            for i in DBSession().query(Document).filter(Document.collection_id==cid)]
 
 def search_collections(req):
     userid = req.GET.get("user_id")
