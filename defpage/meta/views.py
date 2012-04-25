@@ -140,6 +140,15 @@ def get_collection(req):
             "roles":roles,
             "documents":docs}
 
+def get_collection_documents(req):
+    dbs = DBSession()
+    cid = req.context.collection_id
+    return [{"id":i.document_id,
+             "title":i.title,
+             "modified":i.modified,
+             "source":i.source}
+            for i in dbs.query(Document).filter(Document.collection_id==cid)]
+
 def search_collections(req):
     userid = req.GET.get("user_id")
     info = req.GET.get("info")

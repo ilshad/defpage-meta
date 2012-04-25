@@ -19,15 +19,19 @@ def main(global_config, **settings):
     config.setup_registry(settings=settings,
                           authentication_policy=authentication_policy)
 
-    config.add_route("cols", "/collections/")
+    config.add_route("collections", "/collections/")
 
-    config.add_route("col", "/collections/{name}",
+    config.add_route("collection", "/collections/{name}",
                      factory=get_collection,
                      custom_predicates=(is_int,))
 
-    config.add_route("docs", "/documents/")
+    config.add_route("collection_documents", "/collections/{name}/documents/",
+                     factory=get_collection,
+                     custom_predicates=(is_int,))
 
-    config.add_route("doc", "/documents/{name}",
+    config.add_route("documents", "/documents/")
+
+    config.add_route("document", "/documents/{name}",
                      factory=get_document,
                      custom_predicates=(is_int,))
 
@@ -36,46 +40,52 @@ def main(global_config, **settings):
                      custom_predicates=(is_int,))
 
     config.add_view("defpage.meta.views.add_collection",
-                    route_name="cols",
+                    route_name="collections",
                     renderer="json",
                     request_method="POST")
 
     config.add_view("defpage.meta.views.edit_collection",
-                    route_name="col",
+                    route_name="collection",
                     request_method="POST",
                     permission="manage")
 
     config.add_view("defpage.meta.views.del_collection",
-                    route_name="col",
+                    route_name="collection",
                     request_method="DELETE",
                     permission="delete")
 
     config.add_view("defpage.meta.views.get_collection",
-                    route_name="col",
+                    route_name="collection",
+                    renderer="json",
+                    request_method="GET",
+                    permission="view")
+
+    config.add_view("defpage.meta.views.get_collection_documents",
+                    route_name="collection_documents",
                     renderer="json",
                     request_method="GET",
                     permission="view")
 
     config.add_view("defpage.meta.views.search_collections",
-                    route_name="cols",
+                    route_name="collections",
                     renderer="json",
                     request_method="GET")
 
     config.add_view("defpage.meta.views.add_document",
-                    route_name="docs",
+                    route_name="documents",
                     renderer="json",
                     request_method="POST")
 
     config.add_view("defpage.meta.views.edit_document",
-                    route_name="doc",
+                    route_name="document",
                     request_method="POST")
 
     config.add_view("defpage.meta.views.del_document",
-                    route_name="doc",
+                    route_name="document",
                     request_method="DELETE")
 
     config.add_view("defpage.meta.views.get_document",
-                    route_name="doc",
+                    route_name="document",
                     renderer="json",
                     request_method="GET")
 
