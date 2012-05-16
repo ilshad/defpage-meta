@@ -7,14 +7,14 @@ from defpage.meta.sql import Source
 
 def get_collection(req):
     v = DBSession().query(Collection).filter(
-        Collection.collection_id==int(req.matchdict["name"])).scalar()
+        Collection.id==int(req.matchdict["name"])).scalar()
     if not v:
         raise HTTPNotFound
     return v
 
 def get_document(req):
     v = DBSession().query(Document).filter(
-        Document.document_id==int(req.matchdict["name"])).scalar()
+        Document.id==int(req.matchdict["name"])).scalar()
     if not v:
         raise HTTPNotFound
     return v

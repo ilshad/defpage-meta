@@ -31,7 +31,7 @@ def add_collection(req):
         raise HTTPBadRequest
     dbs = DBSession()
     c = Collection(title)
-    cid = c.collection_id
+    cid = c.id
     dbs.add(c)
     dbs.add(CollectionUserRole(cid, userid, u"owner"))
     req.response.status = "201 Created"
@@ -69,19 +69,17 @@ def edit_collection(req):
                 # so create new source.
                 s = Source(stype, userid)
                 s.source_details = make_details(stype, "source", source)
-                req.context.source_id = s.source_id
+                req.context.source_id = s.id
                 req.context.source_details = make_details(stype, "collection", source)
                 dbs.add(s)
             else:
                 # Assign existing source to this colllection.
-                req.context.source_id = s.source_id
+                req.context.source_id = s.id
                 req.context.source_details = make_details(stype, "collection", source)
         else:
             # Update already configured collection source data.
             # User id can be system, therefore do not pass userid into database.
-            s = dbs.query(Source).filter(
-                Source.source_id==req.context.source_id
-                ).scalar()
+            s = dbs.query(Source).filter(Source.id==req.context.source_id).scalar()
             if not is_equal_items(s.source_details, source):
                 s.source_details = make_details(stype, "source", source)
             if not is_equal_items(req.context.source_details, source):
@@ -89,7 +87,7 @@ def edit_collection(req):
 
     if transmissions:
         req.context.transmissions = dict_list_required(transmissions)
-    cid = req.context.collection_id
+    cid = req.context.id
     if roles:
         roles = dict_required(roles)
         if u"owner" not in roles.values():
@@ -105,7 +103,7 @@ ALLOW_DELETE = ("gd")
 
 def del_collection(req):
     dbs = DBSession()
-    cid = req.context.collection_id
+    cid = req.context.id
     roles = dbs.query(CollectionUserRole).filter(CollectionUserRole.collection_id==cid)
     for r in roles:
         dbs.delete(r)
@@ -120,13 +118,13 @@ def del_collection(req):
 def get_collection(req):
     dbs = DBSession()
     c = req.context
-    cid = c.collection_id
+    cid = c.id
     roles = dict((i.user_id, i.role) for i in dbs.query(CollectionUserRole).filter( 
             CollectionUserRole.collection_id==cid))
-    length = dbs.query(Document.document_id).filter(Document.collection_id==cid).count()
+    length = dbs.query(Document.id).filter(Document.collection_id==cid).count()
     source = {}
     if c.source_id:
-        s = dbs.query(Source).filter(Source.source_id==c.source_id).scalar()
+        s = dbs.query(Source).filter(Source.id==c.source_id).scalar()
         source.update(s.source_details)
         source.update(c.source_details or {})
         source["type"] = s.source_type
@@ -137,8 +135,8 @@ def get_collection(req):
             "roles":roles}
 
 def get_collection_documents(req):
-    cid = req.context.collection_id
-    return [{"id":i.document_id,
+    cid = req.context.id
+    return [{"id":i.id,
              "title":i.title,
              "modified":i.modified,
              "source":i.source}
@@ -155,9 +153,9 @@ def search_collections(req):
                  "role":x.role}
                 for x in r]
     elif info == "total_num":
-        return {"total_num": DBSession().query(Collection.collection_id).count()}
+        return {"total_num": DBSession().query(Collection.id).count()}
     elif info == "max_id":
-        return {"max_id": DBSession().query(func.max(Collection.collection_id)).scalar()}
+        return {"max_id": DBSession().query(func.max(Collection.id)).scalar()}
 
 def add_document(req):
     params = req.json_body
@@ -171,7 +169,7 @@ def add_document(req):
         cid = int_required(cid)
     dbs = DBSession()
     doc = Document(title, modified)
-    docid = doc.document_id
+    docid = doc.id
     if source:
         doc.source = source
     if cid:
@@ -209,8 +207,8 @@ def get_document(req):
 def set_source(req):
     params = req.json_body
     cid = int_required(params.get("collection_id"))
-    c = DBSession().query(Collection).filter(Collection.collection_id==cid).scalar()
+    c = DBSession().query(Collection).filter(Collection.id==cid).scalar()
     if c.source_id and (params.get("force") is not True):
         raise HTTPForbidden
-    c.source_id = req.context.source_id
+    c.source_id = req.context.id
     return Response(status="204 No Content")

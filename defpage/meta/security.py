@@ -15,7 +15,7 @@ def security_checker(credentials, request):
             c = ICollection(request.context, None)
             if c:
                 cur = DBSession().query(CollectionUserRole).filter(
-                    and_(CollectionUserRole.collection_id==c.collection_id,
+                    and_(CollectionUserRole.collection_id==c.id,
                          CollectionUserRole.user_id==userid)
                     ).first()
                 if cur:
