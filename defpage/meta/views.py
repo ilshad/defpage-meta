@@ -85,8 +85,8 @@ def edit_collection(req):
             if not is_equal_items(req.context.source_details, source):
                 req.context.source_details = make_details(stype, "collection", source)
 
-    if transmissions:
-        req.context.transmissions = dict_list_required(transmissions)
+    #if transmissions: tmp
+    #    req.context.transmissions = dict_list_required(transmissions)
     cid = req.context.id
     if roles:
         roles = dict_required(roles)
@@ -131,7 +131,7 @@ def get_collection(req):
     return {"title":c.title,
             "length":length,
             "source":source or None,
-            "transmissions":c.transmissions or [],
+            "transmissions": [], #tmp
             "roles":roles}
 
 def get_collection_documents(req):

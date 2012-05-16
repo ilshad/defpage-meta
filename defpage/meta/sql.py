@@ -80,7 +80,7 @@ class CollectionUserRole(Base):
     __tablename__ = "collection_user_role"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    collection_id = Column(ForeignKey("collections.id"))
+    collection_id = Column(ForeignKey("collection.id"))
     user_id = Column(Integer)
     role = Column(Unicode)
 
@@ -102,7 +102,7 @@ class Document(Base):
     __acl__ = []
 
     id = Column(Integer, primary_key=True, autoincrement=False)
-    collection_id = Column(ForeignKey("collections.collection_id"))
+    collection_id = Column(ForeignKey("collection.id"))
     title = Column(Unicode)
     modified = Column(Integer)
 
