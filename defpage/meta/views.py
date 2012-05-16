@@ -14,9 +14,10 @@ from defpage.meta.sql import Collection
 from defpage.meta.sql import Document
 from defpage.meta.sql import Source
 from defpage.meta.sql import CollectionUserRole
+from defpage.meta.sql import Transmission
 from defpage.meta.util import int_required
 from defpage.meta.util import dict_required
-from defpage.meta.util import dict_list_required
+from defpage.meta.util import list_required
 from defpage.meta.util import is_equal_items
 from defpage.meta.source import make_details
 
@@ -85,8 +86,8 @@ def edit_collection(req):
             if not is_equal_items(req.context.source_details, source):
                 req.context.source_details = make_details(stype, "collection", source)
 
-    #if transmissions: tmp
-    #    req.context.transmissions = dict_list_required(transmissions)
+    if transmissions:
+        req.context.transmissions = list_required(transmissions)
     cid = req.context.id
     if roles:
         roles = dict_required(roles)
@@ -111,6 +112,9 @@ def del_collection(req):
     for d in docs:
         if d.source["type"] in ALLOW_DELETE:
             dbs.delete(d)
+    transmissions = dbs.query(Transmission).filter(Transmission.collection_id==cid)
+    for t in transmissions:
+        dbs.delete(t)
     transaction.commit()
     dbs.delete(req.context)
     return Response(status="204 No Content")
@@ -131,7 +135,7 @@ def get_collection(req):
     return {"title":c.title,
             "length":length,
             "source":source or None,
-            "transmissions": [], #tmp
+            "transmissions": c.transmissions or [],
             "roles":roles}
 
 def get_collection_documents(req):

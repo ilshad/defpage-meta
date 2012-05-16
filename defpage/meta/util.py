@@ -13,10 +13,10 @@ def dict_required(v):
         return v
     raise HTTPBadRequest
 
-def dict_list_required(v):
-    if type(v) is not list:
-        raise HTTPBadRequest
-    return [dict_required(i) for i in v]
+def list_required(v):
+    if type(v) is list:
+        return v
+    raise HTTPBadRequest
 
 def is_equal_items(d1, d2):
     if not d1:

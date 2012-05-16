@@ -14,11 +14,12 @@ from sqlalchemy import ForeignKey
 from pyramid.security import Everyone
 from pyramid.security import Authenticated
 from pyramid.security import Allow
-from defpage.meta.interfaces import ICollection
-from defpage.meta.interfaces import IDocument
-from defpage.meta import roles
 from defpage.lib.util import random_string
 from defpage.lib.util import serialized
+from defpage.meta.interfaces import ICollection
+from defpage.meta.interfaces import IDocument
+from defpage.meta.transmission import get_type_id
+from defpage.meta import roles
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
@@ -74,6 +75,23 @@ class Source(Base):
 
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Source.id)).scalar() or 0)
+
+class Transmission(Base):
+
+    __tablename__ = "transmission"
+
+    id = Column(Integer, primary_key=True)
+
+    type_id = Column(Integer)
+    collection_id = Column(ForeignKey("collection.id"))
+
+    _params = Column("params", UnicodeText)
+    params = synonym("_params", descriptor=serialized("_params"))
+
+    def __init__(self, collection_id, type_name, params):
+        self.collection_id = collection_id
+        self.type_id = get_type_id(type_name)
+        self.params = params
 
 class CollectionUserRole(Base):
 
