@@ -219,5 +219,5 @@ def set_source(req):
 
 def add_transmission(req):
     d = req.json_body
-    DBSession().add(Transmission(req.context.id, d["title"], d["type"], d["params"]))
+    DBSession().add(Transmission(req.context.id, d["type"], d["description"], d["params"]))
     return Resonse(status="204 No Content")

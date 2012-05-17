@@ -84,15 +84,15 @@ class Transmission(Base):
 
     type_id = Column(Integer)
     collection_id = Column(ForeignKey("collection.id"))
-    title = Column(Unicode)
+    description = Column(Unicode)
 
     _params = Column("params", UnicodeText)
     params = synonym("_params", descriptor=serialized("_params"))
 
-    def __init__(self, collection_id, type_name, title, params):
+    def __init__(self, collection_id, type_name, description, params):
         self.collection_id = collection_id
         self.type_id = get_type_id(type_name)
-        self.title = title
+        self.description = description
         self.params = params
 
 class CollectionUserRole(Base):
