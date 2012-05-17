@@ -25,6 +25,10 @@ def main(global_config, **settings):
                      factory=get_collection,
                      custom_predicates=(is_int,))
 
+    config.add_route("collection_transmissions", "/collections/{name}/transmissions",
+                     factory=get_collection,
+                     custom_predicates=(is_int,))
+
     config.add_route("collection_documents", "/collections/{name}/documents/",
                      factory=get_collection,
                      custom_predicates=(is_int,))
@@ -92,5 +96,10 @@ def main(global_config, **settings):
     config.add_view("defpage.meta.views.set_source",
                     route_name="sources",
                     request_method="POST")
+
+    config.add_view("defpage.meta.views.add_transmission",
+                    route_name="collection_transmissions",
+                    request_method="POST",
+                    permission="manage")
 
     return config.make_wsgi_app()

@@ -216,3 +216,8 @@ def set_source(req):
         raise HTTPForbidden
     c.source_id = req.context.id
     return Response(status="204 No Content")
+
+def add_transmisssion(req):
+    d = req.json_body
+    DBSession().add(Transmission(req.context.id, d["title"], d["type"], d["params"]))
+    return Resonse(status="204 No Content")
