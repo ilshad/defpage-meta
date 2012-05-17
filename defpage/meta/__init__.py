@@ -102,4 +102,10 @@ def main(global_config, **settings):
                     request_method="POST",
                     permission="manage")
 
+    config.add_view("defpage.meta.views.get_collection_transmissions",
+                    route_name="collection_transmissions",
+                    renderer="json",
+                    request_method="GET",
+                    permission="manage")
+
     return config.make_wsgi_app()

@@ -218,3 +218,11 @@ def add_transmission(req):
     d = req.json_body
     DBSession().add(Transmission(req.context.id, d["type"], d["description"], d["params"]))
     return Response(status="204 No Content")
+
+def get_collection_transmissions(req):
+    return [{"id":x.id,
+             "type":x.type_name,
+             "description":x.description,
+             "params":x.params
+             } for x in DBSession().query(Transmission).filter(
+            Transmission.collection_id==req.context.id)]

@@ -18,7 +18,7 @@ from defpage.lib.util import random_string
 from defpage.lib.util import serialized
 from defpage.meta.interfaces import ICollection
 from defpage.meta.interfaces import IDocument
-from defpage.meta.transmission import get_type_id
+from defpage.meta.transmission import type_encoded
 from defpage.meta import roles
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
@@ -82,16 +82,18 @@ class Transmission(Base):
 
     id = Column(Integer, primary_key=True)
 
-    type_id = Column(Integer)
     collection_id = Column(ForeignKey("collection.id"))
     description = Column(Unicode)
+
+    _tid = Column("type_id", Integer)
+    type_name = synonym("_tid", descriptor=type_encoded("_tid"))
 
     _params = Column("params", UnicodeText)
     params = synonym("_params", descriptor=serialized("_params"))
 
     def __init__(self, collection_id, type_name, description, params):
         self.collection_id = collection_id
-        self.type_id = get_type_id(type_name)
+        self.type_name = type_name
         self.description = description
         self.params = params
 
