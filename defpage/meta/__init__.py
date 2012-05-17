@@ -25,7 +25,7 @@ def main(global_config, **settings):
                      factory=get_collection,
                      custom_predicates=(is_int,))
 
-    config.add_route("collection_transmissions", "/collections/{name}/transmissions",
+    config.add_route("collection_transmissions", "/collections/{name}/transmissions/",
                      factory=get_collection,
                      custom_predicates=(is_int,))
 
