@@ -44,7 +44,6 @@ def edit_collection(req):
     params = req.json_body
     title = params.get("title")
     source = params.get("source")
-    transmissions = params.get("transmissions")
     roles = params.get("roles")
     if title:
         req.context.title = title
@@ -85,9 +84,6 @@ def edit_collection(req):
                 s.source_details = make_details(stype, "source", source)
             if not is_equal_items(req.context.source_details, source):
                 req.context.source_details = make_details(stype, "collection", source)
-
-    if transmissions:
-        req.context.transmissions = list_required(transmissions)
     cid = req.context.id
     if roles:
         roles = dict_required(roles)
@@ -125,7 +121,8 @@ def get_collection(req):
     cid = c.id
     roles = dict((i.user_id, i.role) for i in dbs.query(CollectionUserRole).filter( 
             CollectionUserRole.collection_id==cid))
-    length = dbs.query(Document.id).filter(Document.collection_id==cid).count()
+    count_doc = dbs.query(Document.id).filter(Document.collection_id==cid).count()
+    count_trs = dbs.query(Transmission.id).filter(Transmission.collection_id==cid).count()
     source = {}
     if c.source_id:
         s = dbs.query(Source).filter(Source.id==c.source_id).scalar()
@@ -133,10 +130,10 @@ def get_collection(req):
         source.update(c.source_details or {})
         source["type"] = s.source_type
     return {"title":c.title,
-            "length":length,
             "source":source or None,
-            "transmissions": c.transmissions or [],
-            "roles":roles}
+            "roles":roles,
+            "count_documents":count_doc,
+            "count_transmissions":count_trs}
 
 def get_collection_documents(req):
     cid = req.context.id
