@@ -228,7 +228,7 @@ def get_collection_transmissions(req):
             Transmission.collection_id==req.context.id)]
 
 def get_transmission(req):
-    o = DBSession().query(Transmission.id==req.matchdict["id"]).scalar()
+    o = DBSession().query(Transmission).filter(Transmission.id==req.matchdict["id"]).scalar()
     if not o:
         raise HTTPNotFound
     return {"type":o.type_name,
