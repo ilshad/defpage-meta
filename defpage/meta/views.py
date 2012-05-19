@@ -234,3 +234,25 @@ def get_transmission(req):
     return {"type":o.type_name,
             "description":o.description,
             "params":o.params}
+
+def put_transmission(req):
+    o = DBSession().query(Transmission).filter(Transmission.id==req.matchdict["id"]).scalar()
+    if not o:
+        raise HTTPNotFound
+    d = req.json_body
+    try:
+        tp, ds, pr = d["type"], d["description"], d["params"]
+    except KeyError:
+        raise HTTPBadRequest
+    o.type_name = tp
+    o.description = ds
+    o.params = pr
+    return Response(status="204 No Content")
+
+def delete_transmission(req):
+    dbs = DBSession()
+    o = dbs.query(Transmission).filter(Transmission.id==req.matchdict["id"]).scalar()
+    if not o:
+        raise HTTPNotFound
+    dbs.delete(o)
+    return Response(status="204 No Content")

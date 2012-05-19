@@ -118,4 +118,14 @@ def main(global_config, **settings):
                     request_method="GET",
                     permission="manage")
 
+    config.add_view("defpage.meta.views.put_transmission",
+                    route_name="transmission",
+                    request_method="PUT",
+                    permission="manage")
+
+    config.add_view("defpage.meta.views.delete_transmission",
+                    route_name="transmission",
+                    request_method="DELETE",
+                    permission="manage")
+
     return config.make_wsgi_app()
