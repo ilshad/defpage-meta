@@ -29,6 +29,10 @@ def main(global_config, **settings):
                      factory=get_collection,
                      custom_predicates=(is_int,))
 
+    config.add_route("transmission", "/collections/{name}/transmissions/{id}",
+                     factory=get_collection,
+                     custom_predicates=(is_int,))
+
     config.add_route("collection_documents", "/collections/{name}/documents/",
                      factory=get_collection,
                      custom_predicates=(is_int,))
@@ -104,6 +108,12 @@ def main(global_config, **settings):
 
     config.add_view("defpage.meta.views.get_collection_transmissions",
                     route_name="collection_transmissions",
+                    renderer="json",
+                    request_method="GET",
+                    permission="manage")
+
+    config.add_view("defpage.meta.views.get_transmission",
+                    route_name="transmission",
                     renderer="json",
                     request_method="GET",
                     permission="manage")

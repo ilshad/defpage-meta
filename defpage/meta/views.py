@@ -226,3 +226,11 @@ def get_collection_transmissions(req):
              "params":x.params
              } for x in DBSession().query(Transmission).filter(
             Transmission.collection_id==req.context.id)]
+
+def get_transmission(req):
+    o = DBSession().query(Transmission.id==req.matchdict["id"]).scalar()
+    if not o:
+        raise HTTPNotFound
+    return {"type":o.type_name,
+            "description":o.description,
+            "params":o.params}
