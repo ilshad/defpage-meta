@@ -37,7 +37,7 @@ Run tests::
 
 Run site for development::
 
-  $ bin/paster serve development.ini --reload
+  $ bin/pserve development.ini --reload
 
 Upgrading
 =========
