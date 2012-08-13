@@ -127,13 +127,16 @@ class Document(Base):
     collection_id = Column(ForeignKey("collection.id"))
     title = Column(Unicode)
     modified = Column(Integer)
+    transmitted = Column(Integer)
 
     _source = Column(Unicode)
 
     source = synonym("_source", descriptor=serialized("_source"))
 
-    def __init__(self, title, modified):
+    def __init__(self, title, source, collection_id, modified):
         self.title = title
+        self.source = source
+        self.collection_id = collection_id
         self.modified = modified
         self.id = self._create_id()
 
