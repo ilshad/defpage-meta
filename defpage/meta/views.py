@@ -174,7 +174,7 @@ def add_document(req):
     if cid:
         cid = int_required(cid)
     dbs = DBSession()
-    doc = Document(title, source, collection_id, modified)
+    doc = Document(title, source, cid, modified)
     docid = doc.id
     dbs.add(doc)
     req.response.status = "201 Created"
