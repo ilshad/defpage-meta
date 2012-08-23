@@ -127,7 +127,6 @@ class Document(Base):
     collection_id = Column(ForeignKey("collection.id"))
     title = Column(Unicode)
     modified = Column(Integer)
-    transmitted = Column(Integer)
 
     _source = Column(Unicode)
 
@@ -142,6 +141,24 @@ class Document(Base):
 
     def _create_id(self):
         return 1 + (DBSession().query(func.max(Document.id)).scalar() or 0)
+
+class Entry(Base):
+
+    __tablename__ = "entry"
+
+    id = Column(Integer, primary_key=True)
+    document_id = Column(ForeignKey("document.id"))    
+    transmission_id = Column(ForeignKey("transmission.id"))
+    created = Column(Integer)
+    modified = Column(Integer)
+
+    def __init__(self, document_id, transmission_id, created):
+        self.document_id = document_id
+        self.transmission_id = transmission_id
+        self.created = created
+
+    def update(self, modified):
+        self.modified = modified
 
 def initialize_sql(engine):
     DBSession.configure(bind=engine)

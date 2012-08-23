@@ -140,7 +140,6 @@ def get_collection_documents(req):
     return [{"id":i.id,
              "title":i.title,
              "modified":i.modified,
-             "transmitted":i.transmitted,
              "source":i.source}
             for i in DBSession().query(Document).filter(Document.collection_id==cid)]
 
@@ -186,7 +185,6 @@ def edit_document(req):
     source = params.get("source")
     cid = params.get("collection_id")
     modified = params.get("modified")
-    transmitted = params.get("transmitted")
     if title:
         req.context.title = title
     if cid:
@@ -195,8 +193,6 @@ def edit_document(req):
         req.context.modified = int_required(modified)
     if source:
         req.context.source = source
-    if transmitted:
-        req.context.transmitted = transmitted
     return Response(status="204 No Content")
 
 def del_document(req):
@@ -206,7 +202,6 @@ def del_document(req):
 def get_document(req):
     return {"title":req.context.title,
             "modified":req.context.modified,
-            "transmitted":req.context.transmitted,
             "source":req.context.source,
             "collection_id":req.context.collection_id}
 
