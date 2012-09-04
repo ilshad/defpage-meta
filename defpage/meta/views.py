@@ -15,6 +15,7 @@ from defpage.meta.sql import Document
 from defpage.meta.sql import Source
 from defpage.meta.sql import CollectionUserRole
 from defpage.meta.sql import Transmission
+from defpage.meta.sql import Entry
 from defpage.meta.util import int_required
 from defpage.meta.util import dict_required
 from defpage.meta.util import list_required
@@ -256,3 +257,29 @@ def delete_transmission(req):
         raise HTTPNotFound
     dbs.delete(o)
     return Response(status="204 No Content")
+
+def get_document_transmissions_directory(req):
+    dbs = DBSession()
+    r = []
+    for i in dbs.query(Entry).filter(Entry.document_id==req.context.id):
+        t = dbs.query(Transmission).filter(Transmission.id==i.transmission_id).scalar()
+        r.append({"id":i.transmission_id,
+                  "created":i.created,
+                  "modified":i.modified,
+                  "type":t.type_name,
+                  "description":t.description,
+                  "params":t.params})
+    return r
+
+def get_document_transmission(req):
+    dbs = DBSession()
+    entry = dbs.query(Entry).filter(
+        and_(Entry.document_id==req.context.id,
+             Entry.transmission_id==req.matchdict["id"])
+        ).scalar()
+    t = dbs.query(Transmission.id==entry.transmission_id).scalar()
+    return {"created":entry.created,
+            "modified":entry.modified,
+            "type":t.type_name,
+            "description":t.description,
+            "params":t.params}

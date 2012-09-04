@@ -47,6 +47,14 @@ def main(global_config, **settings):
                      factory=get_source,
                      custom_predicates=(is_int,))
 
+    config.add_route("document_transmissions_directory", "/documents/{name}/transmissions",
+                     factory=get_document,
+                     custom_predicates=(is_int,))
+
+    config.add_route("document_transmission", "/documents/{name}/transmissions/{id}",
+                     factory=get_document,
+                     custom_predicates=(is_int,))
+
     config.add_view("defpage.meta.views.add_collection",
                     route_name="collections",
                     renderer="json",
@@ -127,5 +135,15 @@ def main(global_config, **settings):
                     route_name="transmission",
                     request_method="DELETE",
                     permission="manage")
+
+    config.add_view("defpage.meta.views.get_document_transmissions_directory",
+                    route_name="document_transmissions_directory",
+                    renderer="json",
+                    request_method="GET")
+
+    config.add_view("defpage.meta.views.get_document_transmission",
+                    route_name="document_transmission",
+                    renderer="json",
+                    request_method="GET")
 
     return config.make_wsgi_app()
