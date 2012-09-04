@@ -261,25 +261,47 @@ def delete_transmission(req):
 def get_document_transmissions_directory(req):
     dbs = DBSession()
     r = []
-    for i in dbs.query(Entry).filter(Entry.document_id==req.context.id):
-        t = dbs.query(Transmission).filter(Transmission.id==i.transmission_id).scalar()
-        r.append({"id":i.transmission_id,
-                  "created":i.created,
-                  "modified":i.modified,
-                  "type":t.type_name,
-                  "description":t.description,
-                  "params":t.params})
+    for t in dbs.query(Transmission).filter(
+        Transmission.collection_id==req.context.collection_id):
+        entry = dbs.query(Entry).filter(
+            and_(Entry.document_id==req.context.id,
+                 Entry.transmission_id==t.id)).scalar()
+        r.append({"id": t.id,
+                  "created": entry and entry.created,
+                  "modified": entry and entry.modified,
+                  "type": t.type_name,
+                  "description": t.description,
+                  "params": t.params})
     return r
 
 def get_document_transmission(req):
     dbs = DBSession()
+    t = dbs.query(Transmission.id==req.matchdict["id"]).scalar()
     entry = dbs.query(Entry).filter(
+        and_(Entry.document_id==req.context.id,
+             Entry.transmission_id==t.id)).scalar()
+    return {"created": entry and entry.created,
+            "modified": entry and entry.modified,
+            "type": t.type_name,
+            "description": t.description,
+            "params": t.params}
+
+def add_document_transmission(req):
+    params = req.json_body
+    tid = params.get("transmission_id")
+    created = params.get("created")
+    if (tid is None) or (created is None):
+        raise HTTPBadRequest
+    DBSession().add(Entry(req.context.id, tid, created))
+    return Response(status="204 No Content")
+
+def update_document_transmission(req):
+    modified = req.json_body.get("modified")
+    if modified is None:
+        raise HTTPBadRequest
+    entry = DBSession().query(Entry).filter(
         and_(Entry.document_id==req.context.id,
              Entry.transmission_id==req.matchdict["id"])
         ).scalar()
-    t = dbs.query(Transmission.id==entry.transmission_id).scalar()
-    return {"created":entry.created,
-            "modified":entry.modified,
-            "type":t.type_name,
-            "description":t.description,
-            "params":t.params}
+    entry.update(modified)
+    return Response(status="204 No Content")

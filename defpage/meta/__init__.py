@@ -146,4 +146,12 @@ def main(global_config, **settings):
                     renderer="json",
                     request_method="GET")
 
+    config.add_view("defpage.meta.views.add_document_transmission",
+                    route_name="document_transmissions_directory",
+                    request_method="POST")
+
+    config.add_view("defpage.meta.views.update_document_transmission",
+                    route_name="document_transmission",
+                    request_method="PUT")
+
     return config.make_wsgi_app()
