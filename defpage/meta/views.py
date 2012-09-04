@@ -141,6 +141,7 @@ def get_collection_documents(req):
     return [{"id":i.id,
              "title":i.title,
              "modified":i.modified,
+             "version":i.version,
              "source":i.source}
             for i in DBSession().query(Document).filter(Document.collection_id==cid)]
 
@@ -192,6 +193,7 @@ def edit_document(req):
         req.context.collection_id = int_required(cid)
     if modified:
         req.context.modified = int_required(modified)
+        req.context.version += 1
     if source:
         req.context.source = source
     return Response(status="204 No Content")
@@ -203,6 +205,7 @@ def del_document(req):
 def get_document(req):
     return {"title":req.context.title,
             "modified":req.context.modified,
+            "version":req.context.version,
             "source":req.context.source,
             "collection_id":req.context.collection_id}
 
@@ -267,8 +270,9 @@ def get_document_transmissions_directory(req):
             and_(Entry.document_id==req.context.id,
                  Entry.transmission_id==t.id)).scalar()
         r.append({"id": t.id,
-                  "created": entry and entry.created,
-                  "modified": entry and entry.modified,
+                  "created": entry and entry.created or 0,
+                  "modified": entry and entry.modified or 0,
+                  "version": entry and entry.version or 0,
                   "type": t.type_name,
                   "description": t.description,
                   "params": t.params})
@@ -280,8 +284,9 @@ def get_document_transmission(req):
     entry = dbs.query(Entry).filter(
         and_(Entry.document_id==req.context.id,
              Entry.transmission_id==t.id)).scalar()
-    return {"created": entry and entry.created,
-            "modified": entry and entry.modified,
+    return {"created": entry and entry.created or 0,
+            "modified": entry and entry.modified or 0,
+            "version": entry and entry.version or 0,
             "type": t.type_name,
             "description": t.description,
             "params": t.params}
@@ -290,18 +295,23 @@ def add_document_transmission(req):
     params = req.json_body
     tid = params.get("transmission_id")
     created = params.get("created")
-    if (tid is None) or (created is None):
+    version = params.get("version")
+    if (tid is None) \
+            or (created is None) \
+            or (version is None):
         raise HTTPBadRequest
-    DBSession().add(Entry(req.context.id, tid, created))
+    DBSession().add(Entry(req.context.id, tid, created, version))
     return Response(status="204 No Content")
 
 def update_document_transmission(req):
-    modified = req.json_body.get("modified")
-    if modified is None:
+    params = req.json_body
+    modified = params.get("modified")
+    version = params.get("version")
+    if (modified is None) or (version is None):
         raise HTTPBadRequest
     entry = DBSession().query(Entry).filter(
         and_(Entry.document_id==req.context.id,
              Entry.transmission_id==req.matchdict["id"])
         ).scalar()
-    entry.update(modified)
+    entry.update(modified, version)
     return Response(status="204 No Content")
