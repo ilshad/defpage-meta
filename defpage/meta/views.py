@@ -270,6 +270,7 @@ def get_document_transmissions_directory(req):
             and_(Entry.document_id==req.context.id,
                  Entry.transmission_id==t.id)).scalar()
         r.append({"id": t.id,
+                  "hostdoc_id": entry and entry.hostdoc_id or None,
                   "created": entry and entry.created or 0,
                   "modified": entry and entry.modified or 0,
                   "version": entry and entry.version or 0,
@@ -284,7 +285,8 @@ def get_document_transmission(req):
     entry = dbs.query(Entry).filter(
         and_(Entry.document_id==req.context.id,
              Entry.transmission_id==t.id)).scalar()
-    return {"created": entry and entry.created or 0,
+    return {"hostdoc_id": entry and entry.hostdoc_id or None,
+            "created": entry and entry.created or 0,
             "modified": entry and entry.modified or 0,
             "version": entry and entry.version or 0,
             "type": t.type_name,
@@ -294,13 +296,15 @@ def get_document_transmission(req):
 def add_document_transmission(req):
     params = req.json_body
     tid = params.get("transmission_id")
+    hostdoc_id = params.get("hostdoc_id")
     created = params.get("created")
     version = params.get("version")
     if (tid is None) \
+            or (hostdoc_id is None) \
             or (created is None) \
             or (version is None):
         raise HTTPBadRequest
-    DBSession().add(Entry(req.context.id, tid, created, version))
+    DBSession().add(Entry(req.context.id, tid, hostdoc_id, created, version))
     return Response(status="204 No Content")
 
 def update_document_transmission(req):

@@ -151,13 +151,15 @@ class Entry(Base):
     id = Column(Integer, primary_key=True)
     document_id = Column(ForeignKey("document.id"))    
     transmission_id = Column(ForeignKey("transmission.id"))
+    hostdoc_id = Column(Unicode)
     created = Column(Integer)
     modified = Column(Integer)
     version = Column(Integer)
 
-    def __init__(self, document_id, transmission_id, created, version):
+    def __init__(self, document_id, transmission_id, hostdoc_id, created, version):
         self.document_id = document_id
         self.transmission_id = transmission_id
+        self.hostdoc_id = hostdoc_id
         self.created = created
         self.modified = 0
         self.version = version
