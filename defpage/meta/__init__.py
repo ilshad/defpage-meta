@@ -47,7 +47,7 @@ def main(global_config, **settings):
                      factory=get_source,
                      custom_predicates=(is_int,))
 
-    config.add_route("document_transmissions_directory", "/documents/{name}/transmissions",
+    config.add_route("document_transmissions_directory", "/documents/{name}/transmissions/",
                      factory=get_document,
                      custom_predicates=(is_int,))
 
