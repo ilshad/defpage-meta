@@ -319,3 +319,12 @@ def update_document_transmission(req):
         ).scalar()
     entry.update(modified, version)
     return Response(status="204 No Content")
+
+def delete_document_transmission(req):
+    dbs = DBSession()
+    entry = dbs.query(Entry).filter(
+        and_(Entry.document_id==req.context.id,
+             Entry.transmission_id==req.matchdict["id"])
+        ).scalar()
+    dbs.delete(entry)
+    return Response(status="204 No Content")

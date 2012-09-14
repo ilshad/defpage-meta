@@ -154,4 +154,8 @@ def main(global_config, **settings):
                     route_name="document_transmission",
                     request_method="PUT")
 
+    config.add_view("defpage.meta.views.delete_document_transmission",
+                    route_name="document_transmission",
+                    request_method="DELETE")
+
     return config.make_wsgi_app()
