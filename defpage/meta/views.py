@@ -281,10 +281,12 @@ def get_document_transmissions_directory(req):
 
 def get_document_transmission(req):
     dbs = DBSession()
-    t = dbs.query(Transmission.id==req.matchdict["id"]).scalar()
-    entry = dbs.query(Entry).filter(
-        and_(Entry.document_id==req.context.id,
-             Entry.transmission_id==t.id)).scalar()
+    t = dbs.query(Transmission).filter(Transmission.id==req.matchdict["id"]).scalar()
+    if t is None:
+        raise HTTPNotFound
+    entry = dbs.query(Entry).filter(and_(
+        Entry.document_id==req.context.id,
+        Entry.transmission_id==t.id)).scalar()
     return {"hostdoc_id": entry and entry.hostdoc_id or None,
             "created": entry and entry.created or 0,
             "modified": entry and entry.modified or 0,
