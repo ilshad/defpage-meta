@@ -108,6 +108,11 @@ def del_collection(req):
     docs = dbs.query(Document).filter(Document.collection_id==cid)
     for d in docs:
         if d.source["type"] in ALLOW_DELETE:
+            for e in dbs.query(Entry).filter(Entry.document_id==d.id):
+                dbs.delete(e)
+    transaction.commit()
+    for d in docs:
+        if d.source["type"] in ALLOW_DELETE:
             dbs.delete(d)
     transmissions = dbs.query(Transmission).filter(Transmission.collection_id==cid)
     for t in transmissions:
