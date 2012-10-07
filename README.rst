@@ -17,7 +17,7 @@ Create user `defpage`, database `defpage` and make him owner::
 Deploy
 ======
 
-Install system-wide dependensies::
+Install system dependencies::
 
   $ sudo apt-get install libpq-dev
 
