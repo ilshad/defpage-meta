@@ -17,6 +17,10 @@ Create user `defpage`, database `defpage` and make him owner::
 Deploy
 ======
 
+Install system-wide dependensies::
+
+  $ sudo apt-get install libpq-dev
+
 Create virtual environment and deploy site within it::
 
   $ git clone git@spacta.com:defpage_meta.git
