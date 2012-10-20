@@ -33,11 +33,11 @@ def add_collection(req):
         raise HTTPBadRequest
     dbs = DBSession()
     c = Collection(title)
-    cid = c.id
     dbs.add(c)
-    dbs.add(CollectionUserRole(cid, userid, u"owner"))
+    dbs.flush()
+    dbs.add(CollectionUserRole(c.id, userid, u"owner"))
     req.response.status = "201 Created"
-    return {"id":cid}
+    return {"id":c.id}
 
 def edit_collection(req):
     userid = authenticated_userid(req)
@@ -70,9 +70,10 @@ def edit_collection(req):
                 # so create new source.
                 s = Source(stype, userid)
                 s.source_details = make_details(stype, "source", source)
+                dbs.add(s)
+                dbs.flush()
                 req.context.source_id = s.id
                 req.context.source_details = make_details(stype, "collection", source)
-                dbs.add(s)
             else:
                 # Assign existing source to this colllection.
                 req.context.source_id = s.id
@@ -181,10 +182,10 @@ def add_document(req):
         cid = int_required(cid)
     dbs = DBSession()
     doc = Document(title, source, cid, modified)
-    docid = doc.id
     dbs.add(doc)
+    dbs.flush()
     req.response.status = "201 Created"
-    return {"id":docid}
+    return {"id":doc.id}
 
 def edit_document(req):
     params = req.json_body

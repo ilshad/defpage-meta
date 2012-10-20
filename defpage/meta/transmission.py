@@ -1,7 +1,7 @@
 # SQL database - integer id.
 # REST service API is string name.
 _TYPES = {1:"rest",
-         2:"dirty"}
+          2:"dirty"}
 
 def _get_key(name):
     for k,v in _TYPES.items():

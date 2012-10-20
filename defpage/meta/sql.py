@@ -42,7 +42,7 @@ class Collection(Base):
 
                (Allow, roles.GUEST, "view")]
 
-    id = Column(Integer, primary_key=True, autoincrement=False)
+    id = Column(Integer, primary_key=True)
     title = Column(Unicode)
     source_id = Column(Integer)
 
@@ -51,17 +51,12 @@ class Collection(Base):
 
     def __init__(self, title):
         self.title = title
-        self.id = self._create_id()
-
-    def _create_id(self):
-        return 1 + (DBSession().query(func.max(Collection.id)).scalar() or 0)
 
 class Source(Base):
 
     __tablename__ = "source"
 
-    id = Column(Integer, primary_key=True, autoincrement=False)
-
+    id = Column(Integer, primary_key=True)
     source_type = Column(Unicode)
     user_id = Column(Integer)
 
@@ -71,10 +66,6 @@ class Source(Base):
     def __init__(self, source_type, user_id):
         self.source_type = source_type
         self.user_id = user_id
-        self.id = self._create_id()
-
-    def _create_id(self):
-        return 1 + (DBSession().query(func.max(Source.id)).scalar() or 0)
 
 class Transmission(Base):
 
@@ -101,7 +92,7 @@ class CollectionUserRole(Base):
 
     __tablename__ = "collection_user_role"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     collection_id = Column(ForeignKey("collection.id"))
     user_id = Column(Integer)
     role = Column(Unicode)
@@ -123,14 +114,13 @@ class Document(Base):
 
     __acl__ = []
 
-    id = Column(Integer, primary_key=True, autoincrement=False)
+    id = Column(Integer, primary_key=True)
     collection_id = Column(ForeignKey("collection.id"))
     title = Column(Unicode)
     modified = Column(Integer)
     version = Column(Integer)
 
-    _source = Column(Unicode)
-
+    _source = Column("source", Unicode)
     source = synonym("_source", descriptor=serialized("_source"))
 
     def __init__(self, title, source, collection_id, modified):
@@ -139,10 +129,6 @@ class Document(Base):
         self.collection_id = collection_id
         self.modified = modified
         self.version = 1
-        self.id = self._create_id()
-
-    def _create_id(self):
-        return 1 + (DBSession().query(func.max(Document.id)).scalar() or 0)
 
 class Entry(Base):
 

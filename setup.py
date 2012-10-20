@@ -14,6 +14,7 @@ requires = [
     'pyramid_debugtoolbar',
     'zope.sqlalchemy',
     'waitress',
+    'webtest',
     'psycopg2',
     'httplib2',
     'defpage.lib',
