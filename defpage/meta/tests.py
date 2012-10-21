@@ -100,4 +100,7 @@ class FuncTests(unittest.TestCase):
         r = self.app.get('/collections/1',
                          headers={'Authorization':_basic_user(1)})
         self.assertEqual(r.json['title'], u'Первая коллекция')
-        #self.assertEqual(r.json['source'], '')
+        self.assertEqual(r.json['source'], None)
+        self.assertEqual(r.json['roles']['1'], 'owner')
+        self.assertEqual(r.json['count_documents'], 0)
+        self.assertEqual(r.json['count_transmissions'], 0)
