@@ -104,3 +104,38 @@ class FuncTests(unittest.TestCase):
         self.assertEqual(r.json['roles']['1'], 'owner')
         self.assertEqual(r.json['count_documents'], 0)
         self.assertEqual(r.json['count_transmissions'], 0)
+
+        r = self.app.get('/collections/2',
+                         headers={'Authorization':_basic_user(1)})
+        self.assertEqual(r.json['title'], u'Вторая коллекция')
+        self.assertEqual(r.json['source'], None)
+        self.assertEqual(r.json['roles']['1'], 'owner')
+        self.assertEqual(r.json['count_documents'], 0)
+        self.assertEqual(r.json['count_transmissions'], 0)
+
+        # update collection
+        r = self.app.post_json('/collections/1',
+                               params={'title':u'Первая коллекция новое название'},
+                               headers={'Authorization':_basic_user(1)},
+                               status=204)
+
+        r = self.app.get('/collections/1',
+                         headers={'Authorization':_basic_user(1)})
+        self.assertEqual(r.json['title'], u'Первая коллекция новое название')
+        self.assertEqual(r.json['source'], None)
+        self.assertEqual(r.json['roles']['1'], 'owner')
+        self.assertEqual(r.json['count_documents'], 0)
+        self.assertEqual(r.json['count_transmissions'], 0)
+
+        # delete collection
+        r = self.app.delete('/collections/2',
+                            headers={'Authorization':_basic_user(1)},
+                            status=204)
+
+        r = self.app.get('/collections/',
+                         params={'info':'total_num'})
+        self.assertEqual(r.json['total_num'], 1)
+
+        r = self.app.get('/collections/2',
+                         headers={'Authorization':_basic_user(1)},
+                         status=404)
