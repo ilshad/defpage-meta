@@ -17,3 +17,5 @@ include/
 lib/
 man/
 local
+
+sqlite.db
