@@ -23,11 +23,11 @@ Install system dependencies::
 
 Create virtual environment and deploy site within it::
 
-  $ git clone git@github.com:astoon/defpage-meta.git
+  $ git clone git@github.com:ilshad/defpage-meta.git
   $ cd defpage_meta
   $ virtualenv --no-site-packages --distribute .
 
-Install shared python library for defpage (take it here: git@github.com:astoon/defpage-pylib.git)::
+Install shared python library for defpage (take it here: git@github.com:ilshad/defpage-pylib.git)::
 
   $ bin/pip install -e [ path_to_pylib ]
 
